@@ -1,23 +1,29 @@
-import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+import Dashboard from './components/Dashboard';
+import WalkInAppointment from './components/WalkInAppointment';
+import Services from './components/Services';
+import Stylist from './components/Stylist';
 
 function App() {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  const renderPage = () => {
+    switch(currentPage) {
+      case 'walkin':
+        return <WalkInAppointment onBack={() => setCurrentPage('dashboard')} />;
+      case 'services':
+        return <Services onBack={() => setCurrentPage('dashboard')} />;
+      case 'stylist':
+        return <Stylist onBack={() => setCurrentPage('dashboard')} />;
+      default:
+        return <Dashboard onNavigate={setCurrentPage} />;
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {renderPage()}
     </div>
   );
 }
