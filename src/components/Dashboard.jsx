@@ -11,8 +11,7 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
   const { toasts, showToast, removeToast } = useToast();
 
   const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const tax = subtotal * 0.12;
-  const total = subtotal + tax;
+  const total = subtotal;
 
   const handleCheckout = () => {
     if (orderItems.length === 0) {
@@ -46,7 +45,6 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
           customer_name: name,
           items: orderItems,
           subtotal: subtotal,
-          tax: tax,
           total: total,
           status: 'completed'
         }]);
@@ -254,15 +252,7 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
 
         {/* Totals */}
         <div className="space-y-2 border-t-2 border-gray-300 pt-4">
-          <div className="flex justify-between text-black">
-            <span>Subtotal:</span>
-            <span className="font-semibold">₱{subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-black">
-            <span>Tax (12%):</span>
-            <span className="font-semibold">₱{tax.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-black text-xl font-bold border-t-2 border-gray-400 pt-3 mt-3">
+          <div className="flex justify-between text-black text-xl font-bold pt-3">
             <span>Total:</span>
             <span>₱{total.toFixed(2)}</span>
           </div>
