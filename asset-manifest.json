@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/mini-pos/static/css/main.1b52f1f4.css",
+    "main.js": "/mini-pos/static/js/main.4ee56edd.js",
+    "static/js/453.7ae7a34b.chunk.js": "/mini-pos/static/js/453.7ae7a34b.chunk.js",
+    "index.html": "/mini-pos/index.html",
+    "main.1b52f1f4.css.map": "/mini-pos/static/css/main.1b52f1f4.css.map",
+    "main.4ee56edd.js.map": "/mini-pos/static/js/main.4ee56edd.js.map",
+    "453.7ae7a34b.chunk.js.map": "/mini-pos/static/js/453.7ae7a34b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1b52f1f4.css",
+    "static/js/main.4ee56edd.js"
+  ]
+}
