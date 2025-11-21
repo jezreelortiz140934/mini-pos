@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import SkeletonCard from './loading/SkeletonCard';
+import Toast from './Toast';
+import ConfirmDialog from './ConfirmDialog';
+import { useToast } from '../hooks/useToast';
 
 const Products = ({ onNavigate, onAddToOrder }) => {
   const [products, setProducts] = useState([]);
@@ -9,6 +13,8 @@ const Products = ({ onNavigate, onAddToOrder }) => {
   const [productStock, setProductStock] = useState('');
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null });
+  const { toasts, showToast, removeToast } = useToast();
 
   // Fetch products from Supabase
   useEffect(() => {
@@ -27,7 +33,7 @@ const Products = ({ onNavigate, onAddToOrder }) => {
       setProducts(data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
-      alert('Error loading products');
+      showToast('Error loading products', 'error');
     } finally {
       setLoading(false);
     }
@@ -53,6 +59,7 @@ const Products = ({ onNavigate, onAddToOrder }) => {
 
           setProducts(products.map(p => p.id === editingId ? data[0] : p));
           setEditingId(null);
+          showToast('Product updated successfully!', 'success');
         } else {
           // Insert new product
           const { data, error } = await supabase
@@ -69,6 +76,7 @@ const Products = ({ onNavigate, onAddToOrder }) => {
           if (error) throw error;
 
           setProducts([data[0], ...products]);
+          showToast('Product added successfully!', 'success');
         }
         
         setProductName('');
@@ -77,7 +85,7 @@ const Products = ({ onNavigate, onAddToOrder }) => {
         setShowForm(false);
       } catch (error) {
         console.error('Error saving product:', error);
-        alert('Error saving product');
+        showToast('Error saving product', 'error');
       }
     }
   };
@@ -98,21 +106,24 @@ const Products = ({ onNavigate, onAddToOrder }) => {
     setShowForm(false);
   };
 
-  const handleDeleteProduct = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        const { error } = await supabase
-          .from('products')
-          .delete()
-          .eq('id', id);
+  const handleDeleteProduct = (id) => {
+    setDeleteDialog({ isOpen: true, id });
+  };
 
-        if (error) throw error;
+  const confirmDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', deleteDialog.id);
 
-        setProducts(products.filter(product => product.id !== id));
-      } catch (error) {
-        console.error('Error deleting product:', error);
-        alert('Error deleting product');
-      }
+      if (error) throw error;
+
+      setProducts(products.filter(product => product.id !== deleteDialog.id));
+      showToast('Product deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      showToast('Error deleting product', 'error');
     }
   };
 
@@ -223,8 +234,10 @@ const Products = ({ onNavigate, onAddToOrder }) => {
       {/* Products Grid */}
       <div className="max-w-7xl mx-auto">
         {loading ? (
-          <div className="bg-white rounded-lg shadow-lg p-12 text-center">
-            <p className="text-gray-500 text-lg">Loading products...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
           </div>
         ) : products.length === 0 ? (
           <div className="bg-white rounded-lg shadow-lg p-12 text-center">
@@ -235,7 +248,7 @@ const Products = ({ onNavigate, onAddToOrder }) => {
             <p className="text-gray-400 text-sm mt-2">Click "Add Product" to get started</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 fade-in">
             {products.map((product) => (
               <div key={product.id} className="bg-white rounded-lg shadow-lg p-6 relative">
                 <div className="absolute top-4 right-4 flex gap-2">
@@ -276,7 +289,7 @@ const Products = ({ onNavigate, onAddToOrder }) => {
                     <button
                       onClick={() => {
                         onAddToOrder(product, 'product');
-                        alert(`Added ${product.name} to order!`);
+                        showToast(`Added ${product.name} to order!`, 'success');
                       }}
                       className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition-colors mt-3"
                     >
@@ -294,6 +307,27 @@ const Products = ({ onNavigate, onAddToOrder }) => {
           </div>
         )}
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, id: null })}
+        onConfirm={confirmDelete}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        confirmText="Delete"
+        type="danger"
+      />
     </div>
   );
 };

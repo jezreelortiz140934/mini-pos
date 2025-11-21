@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import SkeletonCard from './loading/SkeletonCard';
+import Toast from './Toast';
+import ConfirmDialog from './ConfirmDialog';
+import { useToast } from '../hooks/useToast';
 
 const Stylist = ({ onBack }) => {
   const [showForm, setShowForm] = useState(false);
@@ -7,6 +11,8 @@ const Stylist = ({ onBack }) => {
   const [formData, setFormData] = useState({ name: '', contact: '' });
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null });
+  const { toasts, showToast, removeToast } = useToast();
 
   // Fetch stylists from Supabase
   useEffect(() => {
@@ -25,7 +31,7 @@ const Stylist = ({ onBack }) => {
       setStylists(data || []);
     } catch (error) {
       console.error('Error fetching stylists:', error);
-      alert('Error loading stylists');
+      showToast('Error loading stylists', 'error');
     } finally {
       setLoading(false);
     }
@@ -50,6 +56,7 @@ const Stylist = ({ onBack }) => {
 
           setStylists(stylists.map(s => s.id === editingId ? data[0] : s));
           setEditingId(null);
+          showToast('Stylist updated successfully!', 'success');
         } else {
           // Insert new stylist
           const { data, error } = await supabase
@@ -65,13 +72,14 @@ const Stylist = ({ onBack }) => {
           if (error) throw error;
 
           setStylists([data[0], ...stylists]);
+          showToast('Stylist added successfully!', 'success');
         }
         
         setFormData({ name: '', contact: '' });
         setShowForm(false);
       } catch (error) {
         console.error('Error saving stylist:', error);
-        alert('Error saving stylist');
+        showToast('Error saving stylist', 'error');
       }
     }
   };
@@ -88,21 +96,24 @@ const Stylist = ({ onBack }) => {
     setShowForm(false);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this stylist?')) {
-      try {
-        const { error } = await supabase
-          .from('stylists')
-          .delete()
-          .eq('id', id);
+  const handleDelete = (id) => {
+    setDeleteDialog({ isOpen: true, id });
+  };
 
-        if (error) throw error;
+  const confirmDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('stylists')
+        .delete()
+        .eq('id', deleteDialog.id);
 
-        setStylists(stylists.filter(stylist => stylist.id !== id));
-      } catch (error) {
-        console.error('Error deleting stylist:', error);
-        alert('Error deleting stylist');
-      }
+      if (error) throw error;
+
+      setStylists(stylists.filter(stylist => stylist.id !== deleteDialog.id));
+      showToast('Stylist deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting stylist:', error);
+      showToast('Error deleting stylist', 'error');
     }
   };
 
@@ -177,13 +188,17 @@ const Stylist = ({ onBack }) => {
 
         {/* Stylists Grid */}
         {loading ? (
-          <div className="text-center text-white text-xl py-12">Loading stylists...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
         ) : stylists.length === 0 ? (
           <div className="bg-white rounded-lg p-12 text-center shadow-xl">
             <p className="text-gray-500 text-xl">No stylists yet. Add your first stylist!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
             {stylists.map((stylist) => (
               <div 
                 key={stylist.id}
@@ -229,6 +244,27 @@ const Stylist = ({ onBack }) => {
           </div>
         )}
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, id: null })}
+        onConfirm={confirmDelete}
+        title="Delete Stylist"
+        message="Are you sure you want to delete this stylist? This action cannot be undone."
+        confirmText="Delete"
+        type="danger"
+      />
     </div>
   );
 };

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import SkeletonCard from './loading/SkeletonCard';
+import Toast from './Toast';
+import ConfirmDialog from './ConfirmDialog';
+import { useToast } from '../hooks/useToast';
 
 const Services = ({ onBack, onAddToOrder }) => {
   const [services, setServices] = useState([]);
@@ -11,6 +15,8 @@ const Services = ({ onBack, onAddToOrder }) => {
     price: ''
   });
   const [showForm, setShowForm] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null, title: '' });
+  const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
     fetchServices();
@@ -28,7 +34,7 @@ const Services = ({ onBack, onAddToOrder }) => {
       setServices(data || []);
     } catch (error) {
       console.error('Error fetching services:', error);
-      alert('Error loading services');
+      showToast('Error loading services', 'error');
     } finally {
       setLoading(false);
     }
@@ -37,7 +43,7 @@ const Services = ({ onBack, onAddToOrder }) => {
   const handleServiceClick = (service) => {
     if (onAddToOrder) {
       onAddToOrder(service, 'service');
-      alert(`Added ${service.title} to order!`);
+      showToast(`Added ${service.title} to order!`, 'success');
     }
   };
 
@@ -56,7 +62,7 @@ const Services = ({ onBack, onAddToOrder }) => {
           .eq('id', editingId);
 
         if (error) throw error;
-        alert('Service updated successfully!');
+        showToast('Service updated successfully!', 'success');
       } else {
         // Insert new service
         const { error } = await supabase
@@ -68,7 +74,7 @@ const Services = ({ onBack, onAddToOrder }) => {
           }]);
 
         if (error) throw error;
-        alert('Service added successfully!');
+        showToast('Service added successfully!', 'success');
       }
 
       setFormData({ title: '', description: '', price: '' });
@@ -77,7 +83,7 @@ const Services = ({ onBack, onAddToOrder }) => {
       fetchServices();
     } catch (error) {
       console.error('Error saving service:', error);
-      alert('Error saving service');
+      showToast('Error saving service', 'error');
     }
   };
 
@@ -97,21 +103,23 @@ const Services = ({ onBack, onAddToOrder }) => {
     setShowForm(false);
   };
 
-  const handleDelete = async (id, title) => {
-    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      try {
-        const { error } = await supabase
-          .from('services')
-          .delete()
-          .eq('id', id);
+  const handleDelete = (id, title) => {
+    setDeleteDialog({ isOpen: true, id, title });
+  };
 
-        if (error) throw error;
-        alert('Service deleted successfully!');
-        fetchServices();
-      } catch (error) {
-        console.error('Error deleting service:', error);
-        alert('Error deleting service');
-      }
+  const confirmDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('services')
+        .delete()
+        .eq('id', deleteDialog.id);
+
+      if (error) throw error;
+      showToast('Service deleted successfully!', 'success');
+      fetchServices();
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      showToast('Error deleting service', 'error');
     }
   };
 
@@ -198,13 +206,17 @@ const Services = ({ onBack, onAddToOrder }) => {
 
         {/* Services Grid */}
         {loading ? (
-          <div className="text-center text-white text-xl py-12">Loading services...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
         ) : services.length === 0 ? (
           <div className="bg-white rounded-lg p-12 text-center shadow-xl">
             <p className="text-gray-500 text-xl">No services available</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in">
             {services.map((service) => (
               <div 
                 key={service.id}
@@ -264,6 +276,27 @@ const Services = ({ onBack, onAddToOrder }) => {
           </div>
         )}
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, id: null, title: '' })}
+        onConfirm={confirmDelete}
+        title="Delete Service"
+        message={`Are you sure you want to delete "${deleteDialog.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        type="danger"
+      />
     </div>
   );
 };

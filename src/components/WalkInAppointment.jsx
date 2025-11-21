@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import SkeletonTable from './loading/SkeletonTable';
+import Toast from './Toast';
+import ConfirmDialog from './ConfirmDialog';
+import { useToast } from '../hooks/useToast';
 
 const WalkInAppointment = ({ onBack, onAddToOrder }) => {
   const [appointments, setAppointments] = useState([]);
@@ -7,6 +11,8 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null });
+  const { toasts, showToast, removeToast } = useToast();
   const [formData, setFormData] = useState({
     customer_name: '',
     contact: '',
@@ -34,7 +40,7 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
       setAppointments(data || []);
     } catch (error) {
       console.error('Error fetching appointments:', error);
-      alert('Error loading appointments');
+      showToast('Error loading appointments', 'error');
     } finally {
       setLoading(false);
     }
@@ -71,7 +77,7 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
           .eq('id', editingId);
 
         if (error) throw error;
-        alert('Appointment updated successfully!');
+        showToast('Appointment updated successfully!', 'success');
         setEditingId(null);
       } else {
         // Insert new appointment
@@ -84,7 +90,7 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
           `);
 
         if (error) throw error;
-        alert('Appointment added successfully!');
+        showToast('Appointment added successfully!', 'success');
         setAppointments([data[0], ...appointments]);
       }
 
@@ -98,7 +104,7 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
       fetchAppointments();
     } catch (error) {
       console.error('Error saving appointment:', error);
-      alert('Error saving appointment');
+      showToast('Error saving appointment', 'error');
     }
   };
 
@@ -124,21 +130,24 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
     setShowForm(false);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this appointment?')) {
-      try {
-        const { error } = await supabase
-          .from('walk_in_appointments')
-          .delete()
-          .eq('id', id);
+  const handleDelete = (id) => {
+    setDeleteDialog({ isOpen: true, id });
+  };
 
-        if (error) throw error;
+  const confirmDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('walk_in_appointments')
+        .delete()
+        .eq('id', deleteDialog.id);
 
-        setAppointments(appointments.filter(apt => apt.id !== id));
-      } catch (error) {
-        console.error('Error deleting appointment:', error);
-        alert('Error deleting appointment');
-      }
+      if (error) throw error;
+
+      setAppointments(appointments.filter(apt => apt.id !== deleteDialog.id));
+      showToast('Appointment deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      showToast('Error deleting appointment', 'error');
     }
   };
 
@@ -235,15 +244,17 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
         )}
 
         {/* Table */}
-        <div className="bg-white rounded-lg overflow-hidden shadow-xl">
-          {loading ? (
-            <div className="p-12 text-center text-gray-500">Loading appointments...</div>
-          ) : appointments.length === 0 ? (
+        {loading ? (
+          <SkeletonTable columns={5} rows={5} />
+        ) : appointments.length === 0 ? (
+          <div className="bg-white rounded-lg overflow-hidden shadow-xl">
             <div className="p-12 text-center">
               <p className="text-gray-500 text-lg">No appointments yet</p>
               <p className="text-gray-400 text-sm mt-2">Click "Add Appointment" to create one</p>
             </div>
-          ) : (
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg overflow-hidden shadow-xl fade-in">
             <table className="w-full">
               <thead>
                 <tr className="bg-pink-300">
@@ -282,9 +293,30 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() => setDeleteDialog({ isOpen: false, id: null })}
+        onConfirm={confirmDelete}
+        title="Delete Appointment"
+        message="Are you sure you want to delete this appointment? This action cannot be undone."
+        confirmText="Delete"
+        type="danger"
+      />
     </div>
   );
 };

@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import Toast from './Toast';
+import PromptDialog from './PromptDialog';
+import { useToast } from '../hooks/useToast';
 
 const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQuantity, onClearOrder }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [customerName, setCustomerName] = useState('');
+  const { toasts, showToast, removeToast } = useToast();
 
   const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const tax = subtotal * 0.12;
   const total = subtotal + tax;
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (orderItems.length === 0) {
-      alert('Please add items to your order first');
+      showToast('Please add items to your order first', 'warning');
       return;
     }
+    setShowPrompt(true);
+  };
 
-    const customerName = prompt('Enter customer name:');
-    if (!customerName) return;
-
+  const processCheckout = async (name) => {
     try {
       // Create sales records for each item in the order
       const salesRecords = orderItems.map(item => ({
-        customer_name: customerName,
+        customer_name: name,
         service: item.name,
         price: item.price * item.qty,
         transaction_date: new Date().toISOString()
@@ -37,7 +43,7 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
       const { error: orderError } = await supabase
         .from('orders')
         .insert([{
-          customer_name: customerName,
+          customer_name: name,
           items: orderItems,
           subtotal: subtotal,
           tax: tax,
@@ -47,11 +53,12 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
 
       if (orderError) throw orderError;
 
-      alert(`Order placed for ${customerName}!\nTotal: ₱${total.toFixed(2)}\n\nSales records updated successfully!`);
+      showToast(`Order placed for ${name}! Total: ₱${total.toFixed(2)}`, 'success');
       onClearOrder();
+      setCustomerName('');
     } catch (error) {
       console.error('Error processing checkout:', error);
-      alert('Error processing order. Please try again.');
+      showToast('Error processing order. Please try again.', 'error');
     }
   };
 
@@ -59,35 +66,35 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
     <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 flex">
       {/* Main Content */}
       <div className="flex-1 flex flex-col py-4 md:py-8 px-4 md:px-6">
-      {/* Hamburger Button */}
-      <div className="relative self-start mb-4">
-        <button 
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="p-2 hover:bg-teal-600 rounded-lg transition-colors"
-        >
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
+      {/* Header: Hamburger Button and Logo */}
+      <div className="flex items-center gap-4 mb-6 md:mb-8">
+        <div className="relative">
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 hover:bg-teal-600 rounded-lg transition-colors"
+          >
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
 
-        {/* Dropdown Menu */}
-        {isMenuOpen && (
-          <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-xl py-2 w-56 z-50">
-            <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors">
-              Inventory Section
-            </button>
-            <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors">
-              Admin Dashboard
-            </button>
-            <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-red-600 font-medium transition-colors border-t border-gray-200">
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
+          {/* Dropdown Menu */}
+          {isMenuOpen && (
+            <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-xl py-2 w-56 z-50">
+              <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors">
+                Inventory Section
+              </button>
+              <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors">
+                Admin Dashboard
+              </button>
+              <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-red-600 font-medium transition-colors border-t border-gray-200">
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
 
-      {/* Logo Section */}
-      <div className="flex flex-col items-center mb-6 md:mb-8">
+        {/* Logo */}
         <h1 className="text-3xl md:text-4xl font-serif text-white tracking-wider">SHEARFLOW</h1>
       </div>
 
@@ -282,6 +289,32 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
           </button>
         </div>
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
+
+      {/* Customer Name Prompt */}
+      <PromptDialog
+        isOpen={showPrompt}
+        onClose={() => {
+          setShowPrompt(false);
+          setCustomerName('');
+        }}
+        onSubmit={processCheckout}
+        title="Customer Information"
+        message="Please enter the customer's name to complete the order"
+        placeholder="Enter customer name"
+        inputValue={customerName}
+        onInputChange={setCustomerName}
+        submitText="Complete Order"
+      />
     </div>
   );
 };

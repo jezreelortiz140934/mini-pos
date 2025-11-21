@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import SkeletonTable from './loading/SkeletonTable';
+import Toast from './Toast';
+import { useToast } from '../hooks/useToast';
 
 const Sales = ({ onBack }) => {
   const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { toasts, showToast, removeToast } = useToast();
 
   // Fetch sales from Supabase
   useEffect(() => {
@@ -22,7 +26,7 @@ const Sales = ({ onBack }) => {
       setSalesData(data || []);
     } catch (error) {
       console.error('Error fetching sales:', error);
-      alert('Error loading sales');
+      showToast('Error loading sales', 'error');
     } finally {
       setLoading(false);
     }
@@ -54,14 +58,16 @@ const Sales = ({ onBack }) => {
         </div>
 
         {/* Sales Table */}
-        <div className="bg-white rounded-lg overflow-hidden shadow-xl">
-          {loading ? (
-            <div className="p-12 text-center text-gray-500">Loading sales data...</div>
-          ) : salesData.length === 0 ? (
+        {loading ? (
+          <SkeletonTable columns={4} rows={8} />
+        ) : salesData.length === 0 ? (
+          <div className="bg-white rounded-lg overflow-hidden shadow-xl">
             <div className="p-12 text-center">
               <p className="text-gray-500 text-lg">No sales records yet</p>
             </div>
-          ) : (
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg overflow-hidden shadow-xl fade-in">
             <table className="w-full">
               <thead>
                 <tr className="bg-teal-500">
@@ -92,8 +98,8 @@ const Sales = ({ onBack }) => {
                 </tr>
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Summary Cards */}
         {!loading && salesData.length > 0 && (
@@ -113,6 +119,16 @@ const Sales = ({ onBack }) => {
           </div>
         )}
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </div>
   );
 };
