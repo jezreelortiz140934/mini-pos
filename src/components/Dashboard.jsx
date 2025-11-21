@@ -1,13 +1,59 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { supabase } from '../supabaseClient';
 
-const Dashboard = ({ onNavigate }) => {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  
-  const orderItems = [];
+const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQuantity, onClearOrder }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const tax = subtotal * 0.12;
   const total = subtotal + tax;
+
+  const handleCheckout = async () => {
+    if (orderItems.length === 0) {
+      alert('Please add items to your order first');
+      return;
+    }
+
+    const customerName = prompt('Enter customer name:');
+    if (!customerName) return;
+
+    try {
+      // Create sales records for each item in the order
+      const salesRecords = orderItems.map(item => ({
+        customer_name: customerName,
+        service: item.name,
+        price: item.price * item.qty,
+        transaction_date: new Date().toISOString()
+      }));
+
+      // Insert all sales records
+      const { error: salesError } = await supabase
+        .from('sales')
+        .insert(salesRecords);
+
+      if (salesError) throw salesError;
+
+      // Optional: Save complete order to orders table
+      const { error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          customer_name: customerName,
+          items: orderItems,
+          subtotal: subtotal,
+          tax: tax,
+          total: total,
+          status: 'completed'
+        }]);
+
+      if (orderError) throw orderError;
+
+      alert(`Order placed for ${customerName}!\nTotal: ₱${total.toFixed(2)}\n\nSales records updated successfully!`);
+      onClearOrder();
+    } catch (error) {
+      console.error('Error processing checkout:', error);
+      alert('Error processing order. Please try again.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 flex">
@@ -42,14 +88,6 @@ const Dashboard = ({ onNavigate }) => {
 
       {/* Logo Section */}
       <div className="flex flex-col items-center mb-6 md:mb-8">
-        <div className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-full flex items-center justify-center mb-3 md:mb-4 shadow-lg">
-          <div className="w-20 h-20 md:w-28 md:h-28 bg-teal-500 rounded-full flex items-center justify-center">
-            <svg className="w-14 h-14 md:w-20 md:h-20 text-white" viewBox="0 0 100 100" fill="currentColor">
-              {/* Placeholder for logo - replace with actual logo */}
-              <circle cx="50" cy="50" r="40" />
-            </svg>
-          </div>
-        </div>
         <h1 className="text-3xl md:text-4xl font-serif text-white tracking-wider">SHEARFLOW</h1>
       </div>
 
@@ -93,8 +131,22 @@ const Dashboard = ({ onNavigate }) => {
           <span className="mt-3 text-gray-800 font-semibold text-sm md:text-base">Services</span>
         </div>
 
+        {/* Products */}
+        <div 
+          onClick={() => onNavigate('products')}
+          className="bg-white rounded-lg p-6 md:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+        >
+          <svg className="w-16 h-16 md:w-24 md:h-24 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/>
+          </svg>
+          <span className="mt-3 text-gray-800 font-semibold text-sm md:text-base">Products</span>
+        </div>
+
         {/* Sales  */}
-        <div className="bg-white rounded-lg p-6 md:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+        <div 
+          onClick={() => onNavigate('sales')}
+          className="bg-white rounded-lg p-6 md:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer col-span-2"
+        >
           <svg className="w-16 h-16 md:w-24 md:h-24" viewBox="0 0 100 100">
             <circle fill="#f4d03f" cx="35" cy="30" r="15"/>
             <text x="30" y="35" fontSize="12" fill="#333" fontWeight="bold">Sale!</text>
@@ -106,31 +158,6 @@ const Dashboard = ({ onNavigate }) => {
         </div>
         </div>
       </div>
-
-      {/* Inventory Section */}
-      <div className="flex justify-center w-full mb-6 md:mb-8">
-      <div className="bg-gray-600 rounded-lg p-4 md:p-8 max-w-3xl w-full shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <svg className="w-20 h-20 md:w-32 md:h-32 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-            </svg>
-          </div>
-          <div className="flex-1 flex justify-center">
-            <div className="grid grid-cols-4 gap-1 md:gap-2">
-              {[...Array(8)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className={`w-12 h-12 md:w-16 md:h-16 ${i < 4 ? 'bg-amber-700' : 'bg-teal-600'} rounded shadow-md`}
-                >
-                  <div className="w-full h-1/3 bg-amber-900 rounded-t"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
       </div>
 
       {/* Order Tally - Right Sidebar */}
@@ -138,19 +165,84 @@ const Dashboard = ({ onNavigate }) => {
         <h2 className="text-2xl font-bold text-black mb-6 pb-3 border-b-2 border-gray-300">Order Summary</h2>
         
         {/* Order Items */}
-        <div className="space-y-4 mb-6">
-          {orderItems.map((item) => (
-            <div key={item.id} className="border-b border-gray-200 pb-3">
-              <div className="flex justify-between items-start mb-1">
-                <span className="text-black font-medium text-sm flex-1">{item.name}</span>
-                <span className="text-black font-semibold ml-2">₱{item.price}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm text-gray-600">
-                <span>Qty: {item.qty}</span>
-                <span className="font-semibold text-black">₱{item.price * item.qty}</span>
-              </div>
+        <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+          {orderItems.length === 0 ? (
+            <div className="text-center text-gray-400 py-8">
+              <p>No items in order</p>
+              <p className="text-sm mt-2">Add services or products</p>
             </div>
-          ))}
+          ) : (
+            orderItems.map((item) => (
+              <div key={`${item.type}-${item.id}`} className="border-b border-gray-200 pb-3 mb-3">
+                {/* Walk-in Customer Info Badge */}
+                {item.type === 'walkin' && item.customerInfo && (
+                  <div className="bg-teal-50 border border-teal-200 rounded-lg p-2 mb-2 text-xs">
+                    <div className="flex items-center gap-1 mb-1">
+                      <svg className="w-3 h-3 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                      </svg>
+                      <span className="font-semibold text-teal-700">{item.customerInfo.name}</span>
+                    </div>
+                    <div className="text-gray-600 space-y-0.5">
+                      {item.customerInfo.contact && (
+                        <div>📞 {item.customerInfo.contact}</div>
+                      )}
+                      {item.customerInfo.time && (
+                        <div>🕐 {item.customerInfo.time}</div>
+                      )}
+                      {item.customerInfo.stylist && (
+                        <div>✂️ {item.customerInfo.stylist}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex-1">
+                    <span className="text-black font-medium text-sm">{item.name}</span>
+                    {item.type === 'walkin' && (
+                      <span className="ml-2 text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded">Walk-in</span>
+                    )}
+                    {item.type === 'product' && (
+                      <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Product</span>
+                    )}
+                    {item.type === 'service' && (
+                      <span className="ml-2 text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded">Service</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => onRemoveFromOrder(item.id, item.type)}
+                    className="text-red-500 hover:text-red-700 ml-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onUpdateQuantity(item.id, item.type, item.qty - 1)}
+                      className="bg-gray-200 hover:bg-gray-300 w-6 h-6 rounded flex items-center justify-center"
+                    >
+                      -
+                    </button>
+                    <span className="text-sm font-medium w-8 text-center">{item.qty}</span>
+                    <button
+                      onClick={() => onUpdateQuantity(item.id, item.type, item.qty + 1)}
+                      className="bg-gray-200 hover:bg-gray-300 w-6 h-6 rounded flex items-center justify-center"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-500">₱{item.price.toFixed(2)} each</div>
+                    <div className="font-semibold text-black">₱{(item.price * item.qty).toFixed(2)}</div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Totals */}
@@ -171,10 +263,21 @@ const Dashboard = ({ onNavigate }) => {
 
         {/* Action Buttons */}
         <div className="mt-6 space-y-3">
-          <button className="w-full text-white font-bold py-3 rounded-lg transition-colors" style={{ backgroundColor: '#F29C9B' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e88a89'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#F29C9B'}>
+          <button 
+            onClick={handleCheckout}
+            disabled={orderItems.length === 0}
+            className="w-full text-white font-bold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+            style={{ backgroundColor: '#F29C9B' }} 
+            onMouseOver={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = '#e88a89')} 
+            onMouseOut={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = '#F29C9B')}
+          >
             Checkout
           </button>
-          <button className="w-full bg-gray-200 hover:bg-gray-300 text-black font-bold py-3 rounded-lg transition-colors">
+          <button 
+            onClick={onClearOrder}
+            disabled={orderItems.length === 0}
+            className="w-full bg-gray-200 hover:bg-gray-300 text-black font-bold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             Clear Order
           </button>
         </div>

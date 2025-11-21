@@ -1,50 +1,119 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 
-const Services = ({ onBack }) => {
-  const services = [
-    {
-      id: 1,
-      image: 'https://via.placeholder.com/300x350',
-      title: 'Chic Updo',
-      description: 'Haircut and Styling',
-      price: '₱25 000'
-    },
-    {
-      id: 2,
-      image: 'https://via.placeholder.com/300x350',
-      title: 'Chic Updo',
-      description: 'Color and Highlights',
-      price: '₱25 000'
-    },
-    {
-      id: 3,
-      image: 'https://via.placeholder.com/300x350',
-      title: 'Chic Updo',
-      description: 'Perm and Straightening',
-      price: '₱25 000'
-    },
-    {
-      id: 4,
-      image: 'https://via.placeholder.com/300x350',
-      title: 'Chic Updo',
-      description: 'Deep conditioning',
-      price: '₱25 000'
-    },
-    {
-      id: 5,
-      image: 'https://via.placeholder.com/300x350',
-      title: 'Chic Updo',
-      description: 'Keratin Treatment',
-      price: '₱25 000'
-    },
-    {
-      id: 6,
-      image: 'https://via.placeholder.com/300x350',
-      title: 'Chic Updo',
-      description: 'Hair Spa',
-      price: '₱25 000'
+const Services = ({ onBack, onAddToOrder }) => {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    price: ''
+  });
+  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .order('title');
+      
+      if (error) throw error;
+      setServices(data || []);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      alert('Error loading services');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const handleServiceClick = (service) => {
+    if (onAddToOrder) {
+      onAddToOrder(service, 'service');
+      alert(`Added ${service.title} to order!`);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        // Update existing service
+        const { error } = await supabase
+          .from('services')
+          .update({
+            title: formData.title,
+            description: formData.description,
+            price: parseFloat(formData.price)
+          })
+          .eq('id', editingId);
+
+        if (error) throw error;
+        alert('Service updated successfully!');
+      } else {
+        // Insert new service
+        const { error } = await supabase
+          .from('services')
+          .insert([{
+            title: formData.title,
+            description: formData.description,
+            price: parseFloat(formData.price)
+          }]);
+
+        if (error) throw error;
+        alert('Service added successfully!');
+      }
+
+      setFormData({ title: '', description: '', price: '' });
+      setEditingId(null);
+      setShowForm(false);
+      fetchServices();
+    } catch (error) {
+      console.error('Error saving service:', error);
+      alert('Error saving service');
+    }
+  };
+
+  const handleEdit = (service) => {
+    setEditingId(service.id);
+    setFormData({
+      title: service.title,
+      description: service.description || '',
+      price: service.price
+    });
+    setShowForm(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setFormData({ title: '', description: '', price: '' });
+    setShowForm(false);
+  };
+
+  const handleDelete = async (id, title) => {
+    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
+      try {
+        const { error } = await supabase
+          .from('services')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        alert('Service deleted successfully!');
+        fetchServices();
+      } catch (error) {
+        console.error('Error deleting service:', error);
+        alert('Error deleting service');
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 p-8">
@@ -59,33 +128,141 @@ const Services = ({ onBack }) => {
       </button>
 
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-white text-3xl font-bold text-center mb-12">Choose Services</h1>
+        <div className="flex justify-between items-center mb-12">
+          <h1 className="text-white text-3xl font-bold">Services</h1>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-white text-teal-600 px-6 py-2 rounded-lg font-semibold hover:bg-teal-50 transition-colors"
+          >
+            {showForm ? 'Hide Form' : '+ Add Service'}
+          </button>
+        </div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-3 gap-6">
-          {services.map((service) => (
-            <div 
-              key={service.id} 
-              className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-            >
-              {/* Image */}
-              <div className="h-64 bg-gray-200 overflow-hidden">
-                <img 
-                  src={service.image} 
-                  alt={service.title}
-                  className="w-full h-full object-cover"
+        {/* Add/Edit Form */}
+        {showForm && (
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-teal-600">
+                {editingId ? 'Edit Service' : 'Add New Service'}
+              </h2>
+              {editingId && (
+                <button
+                  onClick={handleCancelEdit}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">Service Name</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  required
                 />
               </div>
-              
-              {/* Content */}
-              <div className="p-4 text-center">
-                <h3 className="text-pink-400 text-lg font-semibold mb-1">{service.title}</h3>
-                <p className="text-gray-600 text-sm mb-2">{service.description}</p>
-                <p className="text-teal-500 font-bold text-lg">{service.price}</p>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  rows="3"
+                />
               </div>
-            </div>
-          ))}
-        </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">Price (₱)</label>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  step="0.01"
+                  min="0"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-teal-500 text-white py-3 rounded-lg font-semibold hover:bg-teal-600 transition-colors"
+              >
+                {editingId ? 'Update Service' : 'Add Service'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Services Grid */}
+        {loading ? (
+          <div className="text-center text-white text-xl py-12">Loading services...</div>
+        ) : services.length === 0 ? (
+          <div className="bg-white rounded-lg p-12 text-center shadow-xl">
+            <p className="text-gray-500 text-xl">No services available</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service) => (
+              <div 
+                key={service.id}
+                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all relative"
+              >
+                {/* Edit/Delete Buttons */}
+                <div className="absolute top-4 right-4 flex gap-2 z-10">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(service);
+                    }}
+                    className="bg-white text-blue-500 hover:text-blue-700 p-2 rounded-full shadow-lg"
+                    title="Edit"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(service.id, service.title);
+                    }}
+                    className="bg-white text-red-500 hover:text-red-700 p-2 rounded-full shadow-lg"
+                    title="Delete"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Image */}
+                <div className="h-64 bg-gradient-to-br from-teal-400 to-teal-500 flex items-center justify-center">
+                  <svg className="w-24 h-24 text-white opacity-50" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                  </svg>
+                </div>
+                
+                {/* Content */}
+                <div className="p-6 text-center">
+                  <h3 className="text-teal-600 text-xl font-bold mb-2">{service.title}</h3>
+                  {service.description && (
+                    <p className="text-gray-600 text-sm mb-3">{service.description}</p>
+                  )}
+                  <p className="text-pink-500 font-bold text-2xl">₱{service.price.toLocaleString()}</p>
+                  <button 
+                    onClick={() => handleServiceClick(service)}
+                    className="mt-4 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition-colors"
+                  >
+                    Add to Order
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
