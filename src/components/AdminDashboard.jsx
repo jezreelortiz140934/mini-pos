@@ -9,7 +9,7 @@ const AdminDashboard = ({ onBack }) => {
   const [currentPage, setCurrentPage] = useState('dashboard');
 
   if (!isAuthenticated) {
-    return <AdminLogin onLogin={() => setIsAuthenticated(true)} />;
+    return <AdminLogin onLogin={() => setIsAuthenticated(true)} onBack={onBack} />;
   }
 
   const handleLogout = () => {

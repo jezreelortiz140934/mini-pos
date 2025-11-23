@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import Toast from './Toast';
@@ -13,9 +13,28 @@ const Products = ({ onNavigate, onAddToOrder }) => {
   const { toasts, showToast, removeToast } = useToast();
 
   // Fetch products from Supabase
+  const fetchProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setProducts(data || []);
+      setFilteredProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      showToast('Failed to load products', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [showToast]);
+
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   useEffect(() => {
     // Filter products based on search query with loading state
@@ -34,25 +53,6 @@ const Products = ({ onNavigate, onAddToOrder }) => {
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery, products]);
-
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('name', { ascending: true });
-      
-      if (error) throw error;
-      setProducts(data || []);
-      setFilteredProducts(data || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      showToast('Error loading products', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">

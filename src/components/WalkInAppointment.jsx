@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import SkeletonTable from './loading/SkeletonTable';
 import Toast from './Toast';
@@ -20,12 +20,7 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
     appointment_time: ''
   });
 
-  useEffect(() => {
-    fetchAppointments();
-    fetchStylists();
-  }, []);
-
-  const fetchAppointments = async () => {
+  const fetchAppointments = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -44,9 +39,9 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
 
-  const fetchStylists = async () => {
+  const fetchStylists = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('stylists')
@@ -58,7 +53,12 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
     } catch (error) {
       console.error('Error fetching stylists:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAppointments();
+    fetchStylists();
+  }, [fetchAppointments, fetchStylists]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

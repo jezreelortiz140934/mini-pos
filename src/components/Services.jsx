@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import Toast from './Toast';
@@ -9,11 +9,7 @@ const Services = ({ onBack, onAddToOrder }) => {
   const [loading, setLoading] = useState(true);
   const { toasts, showToast, removeToast } = useToast();
 
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -25,11 +21,15 @@ const Services = ({ onBack, onAddToOrder }) => {
       setServices(data || []);
     } catch (error) {
       console.error('Error fetching services:', error);
-      showToast('Error loading services', 'error');
+      showToast('Failed to load services', 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
 
   const handleServiceClick = (service) => {
     if (onAddToOrder) {

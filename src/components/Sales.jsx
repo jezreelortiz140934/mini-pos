@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import SkeletonTable from './loading/SkeletonTable';
 import Toast from './Toast';
@@ -10,11 +10,7 @@ const Sales = ({ onBack }) => {
   const { toasts, showToast, removeToast } = useToast();
 
   // Fetch sales from Supabase
-  useEffect(() => {
-    fetchSales();
-  }, []);
-
-  const fetchSales = async () => {
+  const fetchSales = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -26,11 +22,15 @@ const Sales = ({ onBack }) => {
       setSalesData(data || []);
     } catch (error) {
       console.error('Error fetching sales:', error);
-      showToast('Error loading sales', 'error');
+      showToast('Failed to load sales', 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchSales();
+  }, [fetchSales]);
 
   const totalSales = salesData.reduce((sum, sale) => sum + sale.price, 0);
   const averageSale = salesData.length > 0 ? (totalSales / salesData.length) : 0;

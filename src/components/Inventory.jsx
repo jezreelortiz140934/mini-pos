@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import SkeletonTable from './loading/SkeletonTable';
 import Toast from './Toast';
@@ -18,11 +18,7 @@ const Inventory = ({ onBack }) => {
     stock: ''
   });
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -34,11 +30,15 @@ const Inventory = ({ onBack }) => {
       setProducts(data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
-      showToast('Error loading products', 'error');
+      showToast('Failed to load products', 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import Toast from './Toast';
@@ -15,11 +15,7 @@ const Stylist = ({ onBack }) => {
   const { toasts, showToast, removeToast } = useToast();
 
   // Fetch stylists from Supabase
-  useEffect(() => {
-    fetchStylists();
-  }, []);
-
-  const fetchStylists = async () => {
+  const fetchStylists = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -31,11 +27,15 @@ const Stylist = ({ onBack }) => {
       setStylists(data || []);
     } catch (error) {
       console.error('Error fetching stylists:', error);
-      showToast('Error loading stylists', 'error');
+      showToast('Failed to load stylists', 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchStylists();
+  }, [fetchStylists]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
