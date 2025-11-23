@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AdminLogin from './AdminLogin';
 import Inventory from './Inventory';
 import DailySales from './DailySales';
+import ServicesManagement from './ServicesManagement';
 
 const AdminDashboard = ({ onBack }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -22,6 +23,8 @@ const AdminDashboard = ({ onBack }) => {
         return <Inventory onBack={() => setCurrentPage('dashboard')} />;
       case 'daily-sales':
         return <DailySales onBack={() => setCurrentPage('dashboard')} />;
+      case 'services':
+        return <ServicesManagement onBack={() => setCurrentPage('dashboard')} />;
       default:
         return (
           <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 p-8">
@@ -53,7 +56,7 @@ const AdminDashboard = ({ onBack }) => {
               </div>
 
               {/* Admin Menu Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {/* Inventory Section */}
                 <button
                   onClick={() => setCurrentPage('inventory')}
@@ -92,6 +95,28 @@ const AdminDashboard = ({ onBack }) => {
                   </p>
                   <div className="flex items-center text-blue-600 font-semibold">
                     View Daily Sales
+                    <svg className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Services Management */}
+                <button
+                  onClick={() => setCurrentPage('services')}
+                  className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2 text-left group"
+                >
+                  <div className="bg-green-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-200 transition-colors">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-3">Services Management</h2>
+                  <p className="text-gray-600 mb-4">
+                    Add, edit, and manage salon services including prices and descriptions
+                  </p>
+                  <div className="flex items-center text-green-600 font-semibold">
+                    Manage Services
                     <svg className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
                     </svg>
