@@ -23,39 +23,45 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
 
   const processCheckout = async (name) => {
     try {
-      // Insert single sales record with all items
+      // Insert single sales record
       const { error: salesError } = await supabase
         .from('sales')
         .insert([{
           customer_name: name,
           service: orderItems.map(item => item.name).join(', '),
-          price: subtotal,
-          total: total,
-          items: orderItems,
+          price: total,
           transaction_date: new Date().toISOString()
         }]);
 
-      if (salesError) throw salesError;
+      if (salesError) {
+        console.error('Sales Error:', salesError);
+        throw salesError;
+      }
 
-      // Optional: Save complete order to orders table
+      // Save complete order details to orders table
       const { error: orderError } = await supabase
         .from('orders')
         .insert([{
           customer_name: name,
           items: orderItems,
           subtotal: subtotal,
+          tax: 0,
           total: total,
           status: 'completed'
         }]);
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Order Error:', orderError);
+        throw orderError;
+      }
 
       showToast(`Order placed for ${name}! Total: ₱${total.toFixed(2)}`, 'success');
       onClearOrder();
       setCustomerName('');
+      setShowPrompt(false);
     } catch (error) {
       console.error('Error processing checkout:', error);
-      showToast('Error processing order. Please try again.', 'error');
+      showToast(`Error: ${error.message || 'Please try again.'}`, 'error');
     }
   };
 
