@@ -23,18 +23,17 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
 
   const processCheckout = async (name) => {
     try {
-      // Create sales records for each item in the order
-      const salesRecords = orderItems.map(item => ({
-        customer_name: name,
-        service: item.name,
-        price: item.price * item.qty,
-        transaction_date: new Date().toISOString()
-      }));
-
-      // Insert all sales records
+      // Insert single sales record with all items
       const { error: salesError } = await supabase
         .from('sales')
-        .insert(salesRecords);
+        .insert([{
+          customer_name: name,
+          service: orderItems.map(item => item.name).join(', '),
+          price: subtotal,
+          total: total,
+          items: orderItems,
+          transaction_date: new Date().toISOString()
+        }]);
 
       if (salesError) throw salesError;
 
@@ -79,10 +78,13 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
           {/* Dropdown Menu */}
           {isMenuOpen && (
             <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-xl py-2 w-56 z-50">
-              <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors">
-                Inventory Section
-              </button>
-              <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors">
+              <button 
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  onNavigate('admin');
+                }}
+                className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors"
+              >
                 Admin Dashboard
               </button>
               <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-red-600 font-medium transition-colors border-t border-gray-200">

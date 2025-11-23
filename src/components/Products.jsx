@@ -2,18 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import Toast from './Toast';
-import ConfirmDialog from './ConfirmDialog';
 import { useToast } from '../hooks/useToast';
 
 const Products = ({ onNavigate, onAddToOrder }) => {
   const [products, setProducts] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [productName, setProductName] = useState('');
-  const [productPrice, setProductPrice] = useState('');
-  const [productStock, setProductStock] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState(null);
-  const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null });
+  const [searching, setSearching] = useState(false);
   const { toasts, showToast, removeToast } = useToast();
 
   // Fetch products from Supabase
@@ -21,16 +17,35 @@ const Products = ({ onNavigate, onAddToOrder }) => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    // Filter products based on search query with loading state
+    setSearching(true);
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim() === '') {
+        setFilteredProducts(products);
+      } else {
+        const filtered = products.filter(product =>
+          product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setFilteredProducts(filtered);
+      }
+      setSearching(false);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, products]);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('name', { ascending: true });
       
       if (error) throw error;
       setProducts(data || []);
+      setFilteredProducts(data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
       showToast('Error loading products', 'error');
@@ -39,99 +54,11 @@ const Products = ({ onNavigate, onAddToOrder }) => {
     }
   };
 
-  const handleAddProduct = async (e) => {
-    e.preventDefault();
-    if (productName && productPrice && productStock) {
-      try {
-        if (editingId) {
-          // Update existing product
-          const { data, error } = await supabase
-            .from('products')
-            .update({
-              name: productName,
-              price: parseFloat(productPrice),
-              stock: parseInt(productStock)
-            })
-            .eq('id', editingId)
-            .select();
-
-          if (error) throw error;
-
-          setProducts(products.map(p => p.id === editingId ? data[0] : p));
-          setEditingId(null);
-          showToast('Product updated successfully!', 'success');
-        } else {
-          // Insert new product
-          const { data, error } = await supabase
-            .from('products')
-            .insert([
-              {
-                name: productName,
-                price: parseFloat(productPrice),
-                stock: parseInt(productStock)
-              }
-            ])
-            .select();
-
-          if (error) throw error;
-
-          setProducts([data[0], ...products]);
-          showToast('Product added successfully!', 'success');
-        }
-        
-        setProductName('');
-        setProductPrice('');
-        setProductStock('');
-        setShowForm(false);
-      } catch (error) {
-        console.error('Error saving product:', error);
-        showToast('Error saving product', 'error');
-      }
-    }
-  };
-
-  const handleEditProduct = (product) => {
-    setProductName(product.name);
-    setProductPrice(product.price.toString());
-    setProductStock(product.stock.toString());
-    setEditingId(product.id);
-    setShowForm(true);
-  };
-
-  const handleCancelEdit = () => {
-    setProductName('');
-    setProductPrice('');
-    setProductStock('');
-    setEditingId(null);
-    setShowForm(false);
-  };
-
-  const handleDeleteProduct = (id) => {
-    setDeleteDialog({ isOpen: true, id });
-  };
-
-  const confirmDelete = async () => {
-    try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', deleteDialog.id);
-
-      if (error) throw error;
-
-      setProducts(products.filter(product => product.id !== deleteDialog.id));
-      showToast('Product deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      showToast('Error deleting product', 'error');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <button
               onClick={() => onNavigate('dashboard')}
@@ -143,134 +70,50 @@ const Products = ({ onNavigate, onAddToOrder }) => {
             </button>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Products</h1>
           </div>
-          <button
-            onClick={() => {
-              if (showForm && editingId) {
-                handleCancelEdit();
-              } else {
-                setShowForm(!showForm);
-              }
-            }}
-            className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          
+          {/* Search Input */}
+          <div className="relative flex-1 max-w-md">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+            <svg 
+              className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            Add Product
-          </button>
+          </div>
         </div>
       </div>
 
-      {/* Add Product Form */}
-      {showForm && (
-        <div className="max-w-7xl mx-auto mb-6">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">
-              {editingId ? 'Edit Product' : 'Add New Product'}
-            </h2>
-            <form onSubmit={handleAddProduct} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Name
-                </label>
-                <input
-                  type="text"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                  placeholder="Enter product name"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={productPrice}
-                    onChange={(e) => setProductPrice(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="0.00"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stock Quantity
-                  </label>
-                  <input
-                    type="number"
-                    value={productStock}
-                    onChange={(e) => setProductStock(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    placeholder="0"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  type="submit"
-                  className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition-colors"
-                >
-                  {editingId ? 'Update Product' : 'Add Product'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editingId ? handleCancelEdit() : setShowForm(false)}
-                  className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Products Grid */}
       <div className="max-w-7xl mx-auto">
-        {loading ? (
+        {loading || searching ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, index) => (
               <SkeletonCard key={index} />
             ))}
           </div>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div className="bg-white rounded-lg shadow-lg p-12 text-center">
             <svg className="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <p className="text-gray-500 text-lg">No products yet</p>
-            <p className="text-gray-400 text-sm mt-2">Click "Add Product" to get started</p>
+            <p className="text-gray-500 text-lg">{searchQuery ? 'No products found' : 'No products available'}</p>
+            <p className="text-gray-400 text-sm mt-2">
+              {searchQuery ? 'Try a different search term' : 'Products can be added in the Inventory Section'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 fade-in">
-            {products.map((product) => (
-              <div key={product.id} className="bg-white rounded-lg shadow-lg p-6 relative">
-                <div className="absolute top-4 right-4 flex gap-2">
-                  <button
-                    onClick={() => handleEditProduct(product)}
-                    className="text-blue-500 hover:text-blue-700"
-                    title="Edit"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => handleDeleteProduct(product.id)}
-                    className="text-red-500 hover:text-red-700"
-                    title="Delete"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="bg-white rounded-lg shadow-lg p-6">
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
                 </div>
@@ -317,17 +160,6 @@ const Products = ({ onNavigate, onAddToOrder }) => {
           onClose={() => removeToast(toast.id)}
         />
       ))}
-
-      {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={deleteDialog.isOpen}
-        onClose={() => setDeleteDialog({ isOpen: false, id: null })}
-        onConfirm={confirmDelete}
-        title="Delete Product"
-        message="Are you sure you want to delete this product? This action cannot be undone."
-        confirmText="Delete"
-        type="danger"
-      />
     </div>
   );
 };

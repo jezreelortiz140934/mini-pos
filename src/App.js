@@ -6,6 +6,8 @@ import Services from './components/Services';
 import Stylist from './components/Stylist';
 import Sales from './components/Sales';
 import Products from './components/Products';
+import Inventory from './components/Inventory';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -72,6 +74,10 @@ function App() {
         return <Sales onBack={() => setCurrentPage('dashboard')} />;
       case 'products':
         return <Products onNavigate={setCurrentPage} onAddToOrder={addToOrder} />;
+      case 'inventory':
+        return <Inventory onBack={() => setCurrentPage('dashboard')} />;
+      case 'admin':
+        return <AdminDashboard onBack={() => setCurrentPage('dashboard')} />;
       default:
         return <Dashboard 
           onNavigate={setCurrentPage} 
