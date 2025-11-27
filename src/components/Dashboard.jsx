@@ -5,12 +5,20 @@ import Toast from './Toast';
 import PromptDialog from './PromptDialog';
 import { useToast } from '../hooks/useToast';
 
-const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onClearOrder }) => {
+const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onClearOrder, onLogout, user }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const { toasts, showToast, removeToast } = useToast();
+
+  const handleLogout = () => {
+    setIsMenuOpen(false);
+    if (onLogout) {
+      onLogout();
+    }
+    navigate('/');
+  };
 
   const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const total = subtotal;
@@ -95,7 +103,10 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
               >
                 Admin Dashboard
               </button>
-              <button className="w-full text-left px-4 py-3 hover:bg-gray-100 text-red-600 font-medium transition-colors border-t border-gray-200">
+              <button 
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-3 hover:bg-gray-100 text-red-600 font-medium transition-colors border-t border-gray-200"
+              >
                 Logout
               </button>
             </div>
