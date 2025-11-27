@@ -9,7 +9,8 @@ const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal, discount: initial
 
   if (!isOpen) return null;
 
-  const total = Math.max(0, subtotal - discount);
+  const discountValue = parseFloat(discount) || 0;
+  const total = Math.max(0, subtotal - discountValue);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -92,18 +93,20 @@ const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal, discount: initial
                     onClick={() => {
                       if (num === '⌫') {
                         setDiscount(prev => {
-                          const str = prev.toString();
-                          return parseFloat(str.slice(0, -1)) || 0;
+                          const str = (prev || '0').toString();
+                          const newStr = str.slice(0, -1);
+                          return newStr === '' ? 0 : newStr;
                         });
                       } else if (num === '.') {
-                        const str = discount.toString();
+                        const str = (discount || '0').toString();
                         if (!str.includes('.')) {
                           setDiscount(str + '.');
                         }
                       } else {
-                        const newValue = discount === 0 ? num.toString() : discount.toString() + num.toString();
+                        const currentStr = (discount || '0').toString();
+                        const newValue = currentStr === '0' ? num.toString() : currentStr + num.toString();
                         const numValue = parseFloat(newValue);
-                        if (numValue <= subtotal) {
+                        if (!isNaN(numValue) && numValue <= subtotal) {
                           setDiscount(newValue);
                         }
                       }
@@ -140,10 +143,10 @@ const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal, discount: initial
                 <span>Subtotal:</span>
                 <span className="font-semibold">₱{subtotal.toFixed(2)}</span>
               </div>
-              {discount > 0 && (
+              {discountValue > 0 && (
                 <div className="flex justify-between text-red-600 mb-2">
                   <span>Discount:</span>
-                  <span className="font-semibold">-₱{discount.toFixed(2)}</span>
+                  <span className="font-semibold">-₱{discountValue.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between text-lg font-bold text-teal-700 pt-2 border-t-2 border-teal-300">
