@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '../hooks/useToast';
 import Toast from './Toast';
 
-const AdminLogin = ({ onLogin, onBack }) => {
+const AdminLogin = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [pin, setPin] = useState('');
   const { toasts, showToast, removeToast } = useToast();
   const ADMIN_PIN = '808080';
@@ -39,16 +41,14 @@ const AdminLogin = ({ onLogin, onBack }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center p-4 relative">
       {/* Back to Dashboard Button - Outside the form */}
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="absolute top-8 left-8 text-white hover:text-purple-200 transition-colors"
-        >
-          <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-          </svg>
-        </button>
-      )}
+      <button
+        onClick={() => navigate('/')}
+        className="absolute top-8 left-8 text-white hover:text-purple-200 transition-colors"
+      >
+        <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+      </button>
 
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">

@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import SkeletonTable from './loading/SkeletonTable';
 import Toast from './Toast';
 import ConfirmDialog from './ConfirmDialog';
 import { useToast } from '../hooks/useToast';
 
-const Inventory = ({ onBack }) => {
+const Inventory = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -146,7 +148,7 @@ const Inventory = ({ onBack }) => {
     <div className="min-h-screen bg-gradient-to-br from-purple-400 to-purple-500 p-3 sm:p-4 md:p-6 lg:p-8">
       {/* Back Button */}
       <button 
-        onClick={onBack}
+        onClick={() => navigate('/admin')}
         className="mb-4 sm:mb-6 md:mb-8 flex items-center text-white hover:text-purple-200 transition-colors"
       >
         <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" fill="currentColor" viewBox="0 0 24 24">

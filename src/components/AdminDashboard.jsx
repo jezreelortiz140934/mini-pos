@@ -1,38 +1,46 @@
 import React, { useState } from 'react';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import AdminLogin from './AdminLogin';
 import Inventory from './Inventory';
 import DailySales from './DailySales';
 import ServicesManagement from './ServicesManagement';
 
-const AdminDashboard = ({ onBack }) => {
+const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentPage, setCurrentPage] = useState('dashboard');
 
   if (!isAuthenticated) {
-    return <AdminLogin onLogin={() => setIsAuthenticated(true)} onBack={onBack} />;
+    return <AdminLogin onLogin={() => setIsAuthenticated(true)} />;
   }
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    setCurrentPage('dashboard');
+    navigate('/admin');
   };
 
-  const renderPage = () => {
-    switch(currentPage) {
-      case 'inventory':
-        return <Inventory onBack={() => setCurrentPage('dashboard')} />;
-      case 'daily-sales':
-        return <DailySales onBack={() => setCurrentPage('dashboard')} />;
-      case 'services':
-        return <ServicesManagement onBack={() => setCurrentPage('dashboard')} />;
-      default:
-        return (
-          <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 p-3 sm:p-4 md:p-6 lg:p-8">
-            {/* Back to Main Dashboard */}
-            <button 
-              onClick={onBack}
-              className="mb-4 sm:mb-6 md:mb-8 flex items-center text-white hover:text-purple-200 transition-colors"
-            >
+  return (
+    <Routes>
+      <Route path="inventory" element={<Inventory />} />
+      <Route path="daily-sales" element={<DailySales />} />
+      <Route path="services" element={<ServicesManagement />} />
+      <Route path="/" element={
+        <AdminDashboardHome handleLogout={handleLogout} />
+      } />
+      <Route path="*" element={<Navigate to="/admin" replace />} />
+    </Routes>
+  );
+};
+
+const AdminDashboardHome = ({ handleLogout }) => {
+  const navigate = useNavigate();
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 p-3 sm:p-4 md:p-6 lg:p-8">
+      {/* Back to Main Dashboard */}
+      <button 
+        onClick={() => navigate('/')}
+        className="mb-4 sm:mb-6 md:mb-8 flex items-center text-white hover:text-purple-200 transition-colors"
+      >
               <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
               </svg>
@@ -59,7 +67,7 @@ const AdminDashboard = ({ onBack }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
                 {/* Inventory Section */}
                 <button
-                  onClick={() => setCurrentPage('inventory')}
+                  onClick={() => navigate('/admin/inventory')}
                   className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 sm:hover:-translate-y-2 text-left group"
                 >
                   <div className="bg-purple-100 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-purple-200 transition-colors">
@@ -81,7 +89,7 @@ const AdminDashboard = ({ onBack }) => {
 
                 {/* Daily Sales Report */}
                 <button
-                  onClick={() => setCurrentPage('daily-sales')}
+                  onClick={() => navigate('/admin/daily-sales')}
                   className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 sm:hover:-translate-y-2 text-left group"
                 >
                   <div className="bg-blue-100 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-blue-200 transition-colors">
@@ -103,7 +111,7 @@ const AdminDashboard = ({ onBack }) => {
 
                 {/* Services Management */}
                 <button
-                  onClick={() => setCurrentPage('services')}
+                  onClick={() => navigate('/admin/services')}
                   className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 sm:hover:-translate-y-2 text-left group"
                 >
                   <div className="bg-green-100 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-green-200 transition-colors">
@@ -154,11 +162,7 @@ const AdminDashboard = ({ onBack }) => {
               </div>
             </div>
           </div>
-        );
-    }
-  };
-
-  return renderPage();
+  );
 };
 
 export default AdminDashboard;

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import Toast from './Toast';
 import PromptDialog from './PromptDialog';
 import { useToast } from '../hooks/useToast';
 
-const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQuantity, onClearOrder }) => {
+const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onClearOrder }) => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
   const [customerName, setCustomerName] = useState('');
@@ -87,7 +89,7 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
               <button 
                 onClick={() => {
                   setIsMenuOpen(false);
-                  onNavigate('admin');
+                  navigate('/admin');
                 }}
                 className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors"
               >
@@ -109,7 +111,7 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 md:gap-4 max-w-4xl w-full">
         {/* Walk-in Service */}
         <div 
-          onClick={() => onNavigate('walkin')}
+          onClick={() => navigate('/walkin')}
           className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
         >
           <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-teal-500" viewBox="0 0 24 24" fill="currentColor">
@@ -120,7 +122,7 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
 
         {/* Stylist  */}
         <div 
-          onClick={() => onNavigate('stylist')}
+          onClick={() => navigate('/stylist')}
           className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
         >
           <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -133,7 +135,7 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
 
         {/* Services */}
         <div 
-          onClick={() => onNavigate('services')}
+          onClick={() => navigate('/services')}
           className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
         >
           <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20" viewBox="0 0 100 100">
@@ -146,7 +148,7 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
 
         {/* Products */}
         <div 
-          onClick={() => onNavigate('products')}
+          onClick={() => navigate('/products')}
           className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
         >
           <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
@@ -157,7 +159,7 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
 
         {/* Sales  */}
         <div 
-          onClick={() => onNavigate('sales')}
+          onClick={() => navigate('/sales')}
           className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer col-span-2 md:col-span-1"
         >
           <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20" viewBox="0 0 100 100">

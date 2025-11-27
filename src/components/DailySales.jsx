@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import { useToast } from '../hooks/useToast';
 import Toast from './Toast';
 
-const DailySales = ({ onBack }) => {
+const DailySales = () => {
+  const navigate = useNavigate();
   const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -78,7 +80,7 @@ const DailySales = ({ onBack }) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-400 to-blue-600 p-8">
       {/* Back Button */}
       <button 
-        onClick={onBack}
+        onClick={() => navigate('/admin')}
         className="mb-8 flex items-center text-white hover:text-blue-200 transition-colors"
       >
         <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">

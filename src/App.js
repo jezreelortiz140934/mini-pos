@@ -1,5 +1,6 @@
 import './App.css';
 import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import WalkInAppointment from './components/WalkInAppointment';
 import Services from './components/Services';
@@ -10,7 +11,6 @@ import Inventory from './components/Inventory';
 import AdminDashboard from './components/AdminDashboard';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('dashboard');
   const [orderItems, setOrderItems] = useState([]);
 
   const addToOrder = (item, type) => {
@@ -62,37 +62,56 @@ function App() {
     setOrderItems([]);
   };
 
-  const renderPage = () => {
-    switch(currentPage) {
-      case 'walkin':
-        return <WalkInAppointment onBack={() => setCurrentPage('dashboard')} onAddToOrder={addToOrder} />;
-      case 'services':
-        return <Services onBack={() => setCurrentPage('dashboard')} onAddToOrder={addToOrder} />;
-      case 'stylist':
-        return <Stylist onBack={() => setCurrentPage('dashboard')} />;
-      case 'sales':
-        return <Sales onBack={() => setCurrentPage('dashboard')} />;
-      case 'products':
-        return <Products onNavigate={setCurrentPage} onAddToOrder={addToOrder} />;
-      case 'inventory':
-        return <Inventory onBack={() => setCurrentPage('dashboard')} />;
-      case 'admin':
-        return <AdminDashboard onBack={() => setCurrentPage('dashboard')} />;
-      default:
-        return <Dashboard 
-          onNavigate={setCurrentPage} 
-          orderItems={orderItems}
-          onRemoveFromOrder={removeFromOrder}
-          onUpdateQuantity={updateQuantity}
-          onClearOrder={clearOrder}
-        />;
-    }
-  };
-
   return (
-    <div className="App">
-      {renderPage()}
-    </div>
+    <Router basename="/mini-pos">
+      <div className="App">
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <Dashboard 
+                orderItems={orderItems}
+                onRemoveFromOrder={removeFromOrder}
+                onUpdateQuantity={updateQuantity}
+                onClearOrder={clearOrder}
+              />
+            } 
+          />
+          <Route 
+            path="/walkin" 
+            element={<WalkInAppointment onAddToOrder={addToOrder} />} 
+          />
+          <Route 
+            path="/services" 
+            element={<Services onAddToOrder={addToOrder} />} 
+          />
+          <Route 
+            path="/stylist" 
+            element={<Stylist />} 
+          />
+          <Route 
+            path="/sales" 
+            element={<Sales />} 
+          />
+          <Route 
+            path="/products" 
+            element={<Products onAddToOrder={addToOrder} />} 
+          />
+          <Route 
+            path="/inventory" 
+            element={<Inventory />} 
+          />
+          <Route 
+            path="/admin/*" 
+            element={<AdminDashboard />} 
+          />
+          <Route 
+            path="*" 
+            element={<Navigate to="/" replace />} 
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

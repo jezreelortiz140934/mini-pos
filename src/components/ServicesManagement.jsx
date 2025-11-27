@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import Toast from './Toast';
 import ConfirmDialog from './ConfirmDialog';
 import { useToast } from '../hooks/useToast';
 
-const ServicesManagement = ({ onBack }) => {
+const ServicesManagement = () => {
+  const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
@@ -145,7 +147,7 @@ const ServicesManagement = ({ onBack }) => {
     <div className="min-h-screen bg-gradient-to-br from-green-400 to-green-600 p-8">
       {/* Back Button */}
       <button 
-        onClick={onBack}
+        onClick={() => navigate('/admin')}
         className="mb-8 flex items-center text-white hover:text-green-200 transition-colors"
       >
         <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">

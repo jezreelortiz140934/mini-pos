@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import Toast from './Toast';
 import ConfirmDialog from './ConfirmDialog';
 import { useToast } from '../hooks/useToast';
 
-const Stylist = ({ onBack }) => {
+const Stylist = () => {
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [stylists, setStylists] = useState([]);
   const [formData, setFormData] = useState({ name: '', contact: '' });
@@ -121,7 +123,7 @@ const Stylist = ({ onBack }) => {
     <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 p-8">
       {/* Back Button */}
       <button 
-        onClick={onBack}
+        onClick={() => navigate('/')}
         className="mb-8 flex items-center text-white hover:text-pink-200 transition-colors"
       >
         <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">

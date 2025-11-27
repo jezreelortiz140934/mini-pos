@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import SkeletonTable from './loading/SkeletonTable';
 import Toast from './Toast';
 import ConfirmDialog from './ConfirmDialog';
 import { useToast } from '../hooks/useToast';
 
-const WalkInAppointment = ({ onBack, onAddToOrder }) => {
+const WalkInAppointment = ({ onAddToOrder }) => {
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [stylists, setStylists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -155,7 +157,7 @@ const WalkInAppointment = ({ onBack, onAddToOrder }) => {
     <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 p-8">
       {/* Back Button */}
       <button 
-        onClick={onBack}
+        onClick={() => navigate('/')}
         className="mb-8 flex items-center text-white hover:text-pink-200 transition-colors"
       >
         <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">

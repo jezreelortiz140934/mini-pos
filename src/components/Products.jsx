@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import Toast from './Toast';
 import { useToast } from '../hooks/useToast';
 
-const Products = ({ onNavigate, onAddToOrder }) => {
+const Products = ({ onAddToOrder }) => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,7 +63,7 @@ const Products = ({ onNavigate, onAddToOrder }) => {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => navigate('/')}
               className="text-gray-600 hover:text-gray-800"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
