@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import AdminLogin from './AdminLogin';
 import Inventory from './Inventory';
 import DailySales from './DailySales';
+import Sales from './Sales';
 import ServicesManagement from './ServicesManagement';
 
 const AdminDashboard = () => {
@@ -22,6 +23,7 @@ const AdminDashboard = () => {
     <Routes>
       <Route path="inventory" element={<Inventory />} />
       <Route path="daily-sales" element={<DailySales />} />
+      <Route path="sales" element={<Sales />} />
       <Route path="services" element={<ServicesManagement />} />
       <Route path="/" element={
         <AdminDashboardHome handleLogout={handleLogout} />
@@ -125,6 +127,28 @@ const AdminDashboardHome = ({ handleLogout }) => {
                   </p>
                   <div className="flex items-center text-green-600 font-semibold text-sm sm:text-base">
                     Manage Services
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Sales Report */}
+                <button
+                  onClick={() => navigate('/admin/sales')}
+                  className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 sm:hover:-translate-y-2 text-left group"
+                >
+                  <div className="bg-teal-100 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-teal-200 transition-colors">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                  </div>
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">Sales Report</h2>
+                  <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">
+                    View all sales transactions with order numbers and customer details
+                  </p>
+                  <div className="flex items-center text-teal-600 font-semibold text-sm sm:text-base">
+                    View Sales
                     <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
                     </svg>

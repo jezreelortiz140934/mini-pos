@@ -73,6 +73,7 @@ const Sales = () => {
             <table className="w-full">
               <thead>
                 <tr className="bg-teal-500">
+                  <th className="py-4 px-6 text-white font-bold text-left border-r border-teal-600">Order #</th>
                   <th className="py-4 px-6 text-white font-bold text-left border-r border-teal-600">Date</th>
                   <th className="py-4 px-6 text-white font-bold text-left border-r border-teal-600">Name</th>
                   <th className="py-4 px-6 text-white font-bold text-left border-r border-teal-600">Service</th>
@@ -85,6 +86,9 @@ const Sales = () => {
                     key={sale.id} 
                     className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-teal-50 transition-colors`}
                   >
+                    <td className="py-4 px-6 border-r border-gray-200 font-mono text-sm">
+                      {sale.order_id ? `SHF${sale.order_id.slice(-8)}` : '-'}
+                    </td>
                     <td className="py-4 px-6 border-r border-gray-200">
                       {new Date(sale.transaction_date).toLocaleDateString()}
                     </td>
@@ -95,7 +99,7 @@ const Sales = () => {
                 ))}
                 {/* Total Row */}
                 <tr className="bg-teal-100 font-bold">
-                  <td colSpan="3" className="py-4 px-6 text-right text-lg">Total Sales:</td>
+                  <td colSpan="4" className="py-4 px-6 text-right text-lg">Total Sales:</td>
                   <td className="py-4 px-6 text-right text-xl text-teal-700">₱{totalSales.toLocaleString()}</td>
                 </tr>
               </tbody>
