@@ -102,22 +102,23 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
       // Generate order number
       const orderNumber = `SHF${Date.now().toString().slice(-8)}`;
       
-      // Prepare receipt data
-      setReceiptData({
+      // Prepare receipt data (before clearing order)
+      const receiptInfo = {
         customerName: name,
-        items: orderItems,
+        items: [...orderItems], // Create a copy of the items
         subtotal: subtotal,
         total: total,
         orderNumber: orderNumber,
         date: new Date().toISOString()
-      });
+      };
+      
+      setReceiptData(receiptInfo);
       
       showToast(`Order placed for ${name}! Total: ₱${total.toFixed(2)}`, 'success');
-      onClearOrder();
       setCustomerName('');
       setShowPrompt(false);
       
-      // Show receipt modal
+      // Show receipt modal (don't clear order yet)
       setShowReceipt(true);
     } catch (error) {
       console.error('Error processing checkout:', error);
@@ -413,7 +414,10 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
       {/* Receipt Modal */}
       <Receipt
         isOpen={showReceipt}
-        onClose={() => setShowReceipt(false)}
+        onClose={() => {
+          setShowReceipt(false);
+          onClearOrder(); // Clear order when receipt is closed
+        }}
         orderData={receiptData}
       />
     </div>
