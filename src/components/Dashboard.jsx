@@ -181,6 +181,15 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
           {/* Dropdown Menu */}
           {isMenuOpen && (
             <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-xl py-2 w-56 z-50">
+              {user && (
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <p className="text-xs text-gray-500">Logged in as</p>
+                  <p className="font-semibold text-gray-800 truncate">
+                    {user.user_metadata?.first_name} {user.user_metadata?.last_name}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                </div>
+              )}
               <button 
                 onClick={() => {
                   setIsMenuOpen(false);
