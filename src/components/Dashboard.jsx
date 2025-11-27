@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import Toast from './Toast';
 import PromptDialog from './PromptDialog';
+import Receipt from './Receipt';
 import { useToast } from '../hooks/useToast';
 
 const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onClearOrder, onLogout, user }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState(null);
   const [customerName, setCustomerName] = useState('');
   const { toasts, showToast, removeToast } = useToast();
 
@@ -96,16 +99,28 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
         }
       }
 
-      // Show success alert
-      alert(`✅ Order Completed Successfully!\n\nCustomer: ${name}\nTotal: ₱${total.toFixed(2)}\n\nThank you for your business!`);
+      // Generate order number
+      const orderNumber = `SHF${Date.now().toString().slice(-8)}`;
+      
+      // Prepare receipt data
+      setReceiptData({
+        customerName: name,
+        items: orderItems,
+        subtotal: subtotal,
+        total: total,
+        orderNumber: orderNumber,
+        date: new Date().toISOString()
+      });
       
       showToast(`Order placed for ${name}! Total: ₱${total.toFixed(2)}`, 'success');
       onClearOrder();
       setCustomerName('');
       setShowPrompt(false);
+      
+      // Show receipt modal
+      setShowReceipt(true);
     } catch (error) {
       console.error('Error processing checkout:', error);
-      alert(`❌ Checkout Failed\n\n${error.message || 'Please try again.'}`);
       showToast(`Error: ${error.message || 'Please try again.'}`, 'error');
     }
   };
@@ -393,6 +408,13 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
         inputValue={customerName}
         onInputChange={setCustomerName}
         submitText="Complete Order"
+      />
+
+      {/* Receipt Modal */}
+      <Receipt
+        isOpen={showReceipt}
+        onClose={() => setShowReceipt(false)}
+        orderData={receiptData}
       />
     </div>
   );
