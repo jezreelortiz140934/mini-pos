@@ -111,8 +111,11 @@ function App() {
     return children;
   };
 
+  // Use basename only in production (GitHub Pages)
+  const basename = process.env.NODE_ENV === 'production' ? '/mini-pos' : '';
+
   return (
-    <Router basename="/mini-pos">
+    <Router basename={basename}>
       <div className="App">
         <Routes>
           {/* Public Routes */}

@@ -67,8 +67,9 @@ const Login = ({ onLoginSuccess }) => {
     }
 
     try {
+      const basename = process.env.NODE_ENV === 'production' ? '/mini-pos' : '';
       const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
-        redirectTo: `${window.location.origin}/mini-pos/reset-password`
+        redirectTo: `${window.location.origin}${basename}/reset-password`
       });
 
       if (error) throw error;

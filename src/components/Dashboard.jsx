@@ -65,6 +65,37 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
         throw orderError;
       }
 
+      // Update inventory for products in the order
+      const productItems = orderItems.filter(item => item.type === 'product');
+      
+      for (const item of productItems) {
+        // Get current stock
+        const { data: product, error: fetchError } = await supabase
+          .from('products')
+          .select('stock')
+          .eq('id', item.id)
+          .single();
+
+        if (fetchError) {
+          console.error('Error fetching product:', fetchError);
+          continue; // Skip this item but continue with others
+        }
+
+        // Calculate new stock
+        const newStock = product.stock - item.qty;
+
+        // Update inventory
+        const { error: updateError } = await supabase
+          .from('products')
+          .update({ stock: newStock })
+          .eq('id', item.id);
+
+        if (updateError) {
+          console.error('Error updating inventory:', updateError);
+          // Don't throw error, just log it and continue
+        }
+      }
+
       showToast(`Order placed for ${name}! Total: ₱${total.toFixed(2)}`, 'success');
       onClearOrder();
       setCustomerName('');
