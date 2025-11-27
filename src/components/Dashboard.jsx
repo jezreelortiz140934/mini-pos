@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import Toast from './Toast';
-import PromptDialog from './PromptDialog';
+import CheckoutDialog from './CheckoutDialog';
 import Receipt from './Receipt';
 import { useToast } from '../hooks/useToast';
 
@@ -12,7 +12,6 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
   const [showPrompt, setShowPrompt] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
-  const [customerName, setCustomerName] = useState('');
   const { toasts, showToast, removeToast } = useToast();
 
   const handleLogout = () => {
@@ -24,7 +23,7 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
   };
 
   const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const total = subtotal;
+  const total = subtotal; // Will be recalculated with discount in checkout
 
   const handleCheckout = () => {
     if (orderItems.length === 0) {
@@ -34,38 +33,74 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
     setShowPrompt(true);
   };
 
-  const processCheckout = async (name) => {
+  const processCheckout = async (checkoutData) => {
+    const { customerName, paymentMethod, discount, notes } = checkoutData;
+    const total = Math.max(0, subtotal - discount);
+    
     try {
-      // Insert single sales record
+      // Get current user ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Save order to orders table
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          customer_name: customerName,
+          items: orderItems, // Keep for backward compatibility
+          subtotal: subtotal,
+          tax: 0,
+          discount: discount,
+          total: total,
+          status: 'completed',
+          payment_method: paymentMethod,
+          payment_status: 'completed',
+          notes: notes,
+          user_id: user?.id
+        }])
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error('Order Error:', orderError);
+        throw orderError;
+      }
+
+      // Insert order items into order_items table
+      const orderItemsData = orderItems.map(item => ({
+        order_id: orderData.id,
+        item_type: item.type || 'product',
+        item_id: item.id,
+        item_name: item.name,
+        quantity: item.qty,
+        unit_price: item.price,
+        total_price: item.price * item.qty
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItemsData);
+
+      if (itemsError) {
+        console.error('Order Items Error:', itemsError);
+        throw itemsError;
+      }
+
+      // Insert sales record linked to order
       const { error: salesError } = await supabase
         .from('sales')
         .insert([{
-          customer_name: name,
+          customer_name: customerName,
           service: orderItems.map(item => item.name).join(', '),
           price: total,
-          transaction_date: new Date().toISOString()
+          transaction_date: new Date().toISOString(),
+          order_id: orderData.id,
+          payment_method: paymentMethod,
+          user_id: user?.id
         }]);
 
       if (salesError) {
         console.error('Sales Error:', salesError);
         throw salesError;
-      }
-
-      // Save complete order details to orders table
-      const { error: orderError } = await supabase
-        .from('orders')
-        .insert([{
-          customer_name: name,
-          items: orderItems,
-          subtotal: subtotal,
-          tax: 0,
-          total: total,
-          status: 'completed'
-        }]);
-
-      if (orderError) {
-        console.error('Order Error:', orderError);
-        throw orderError;
       }
 
       // Update inventory for products in the order
@@ -104,18 +139,19 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
       
       // Prepare receipt data (before clearing order)
       const receiptInfo = {
-        customerName: name,
+        customerName: customerName,
         items: [...orderItems], // Create a copy of the items
         subtotal: subtotal,
         total: total,
+        discount: discount,
+        paymentMethod: paymentMethod,
         orderNumber: orderNumber,
         date: new Date().toISOString()
       };
       
       setReceiptData(receiptInfo);
       
-      showToast(`Order placed for ${name}! Total: ₱${total.toFixed(2)}`, 'success');
-      setCustomerName('');
+      showToast(`Order placed for ${customerName}! Total: ₱${total.toFixed(2)}`, 'success');
       setShowPrompt(false);
       
       // Show receipt modal (don't clear order yet)
@@ -395,20 +431,12 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
         />
       ))}
 
-      {/* Customer Name Prompt */}
-      <PromptDialog
+      {/* Checkout Dialog */}
+      <CheckoutDialog
         isOpen={showPrompt}
-        onClose={() => {
-          setShowPrompt(false);
-          setCustomerName('');
-        }}
+        onClose={() => setShowPrompt(false)}
         onSubmit={processCheckout}
-        title="Customer Information"
-        message="Please enter the customer's name to complete the order"
-        placeholder="Enter customer name"
-        inputValue={customerName}
-        onInputChange={setCustomerName}
-        submitText="Complete Order"
+        subtotal={subtotal}
       />
 
       {/* Receipt Modal */}

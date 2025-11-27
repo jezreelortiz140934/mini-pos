@@ -14,7 +14,11 @@ const ServicesManagement = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    price: ''
+    price: '',
+    duration: '',
+    category: '',
+    image_url: '',
+    is_active: true
   });
   const [showForm, setShowForm] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null, title: '' });
@@ -72,14 +76,20 @@ const ServicesManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const serviceData = {
+        title: formData.title,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        duration: formData.duration ? parseInt(formData.duration) : null,
+        category: formData.category || null,
+        image_url: formData.image_url || null,
+        is_active: formData.is_active
+      };
+
       if (editingId) {
         const { error } = await supabase
           .from('services')
-          .update({
-            title: formData.title,
-            description: formData.description,
-            price: parseFloat(formData.price)
-          })
+          .update(serviceData)
           .eq('id', editingId);
 
         if (error) throw error;
@@ -87,17 +97,21 @@ const ServicesManagement = () => {
       } else {
         const { error } = await supabase
           .from('services')
-          .insert([{
-            title: formData.title,
-            description: formData.description,
-            price: parseFloat(formData.price)
-          }]);
+          .insert([serviceData]);
 
         if (error) throw error;
         showToast('Service added successfully!', 'success');
       }
 
-      setFormData({ title: '', description: '', price: '' });
+      setFormData({ 
+        title: '', 
+        description: '', 
+        price: '', 
+        duration: '', 
+        category: '', 
+        image_url: '', 
+        is_active: true 
+      });
       setEditingId(null);
       setShowForm(false);
       fetchServices();
@@ -112,7 +126,11 @@ const ServicesManagement = () => {
     setFormData({
       title: service.title,
       description: service.description || '',
-      price: service.price.toString()
+      price: service.price.toString(),
+      duration: service.duration ? service.duration.toString() : '',
+      category: service.category || '',
+      image_url: service.image_url || '',
+      is_active: service.is_active !== undefined ? service.is_active : true
     });
     setShowForm(true);
   };
@@ -202,17 +220,62 @@ const ServicesManagement = () => {
                   rows="3"
                 />
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">Price (₱)</label>
+                  <input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    step="0.01"
+                    min="0"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">Duration (minutes)</label>
+                  <input
+                    type="number"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    min="1"
+                    placeholder="e.g., 30"
+                  />
+                </div>
+              </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Price (₱)</label>
+                <label className="block text-gray-700 font-semibold mb-2">Category (Optional)</label>
                 <input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  type="text"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  step="0.01"
-                  min="0"
-                  required
+                  placeholder="e.g., Hair, Beauty, Spa"
                 />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">Image URL (Optional)</label>
+                <input
+                  type="url"
+                  value={formData.image_url}
+                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="is_active_service"
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <label htmlFor="is_active_service" className="ml-2 text-gray-700 font-semibold">
+                  Active Service
+                </label>
               </div>
               <button
                 type="submit"

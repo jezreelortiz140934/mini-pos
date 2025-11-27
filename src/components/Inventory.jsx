@@ -17,7 +17,13 @@ const Inventory = () => {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
-    stock: ''
+    stock: '',
+    category: '',
+    sku: '',
+    supplier: '',
+    description: '',
+    image_url: '',
+    is_active: true
   });
 
   const fetchProducts = useCallback(async () => {
@@ -45,15 +51,23 @@ const Inventory = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const productData = {
+        name: formData.name,
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        category: formData.category || null,
+        sku: formData.sku || null,
+        supplier: formData.supplier || null,
+        description: formData.description || null,
+        image_url: formData.image_url || null,
+        is_active: formData.is_active
+      };
+
       if (editingId) {
         // Update existing product
         const { error } = await supabase
           .from('products')
-          .update({
-            name: formData.name,
-            price: parseFloat(formData.price),
-            stock: parseInt(formData.stock)
-          })
+          .update(productData)
           .eq('id', editingId);
 
         if (error) throw error;
@@ -62,17 +76,23 @@ const Inventory = () => {
         // Insert new product
         const { error } = await supabase
           .from('products')
-          .insert([{
-            name: formData.name,
-            price: parseFloat(formData.price),
-            stock: parseInt(formData.stock)
-          }]);
+          .insert([productData]);
 
         if (error) throw error;
         showToast('Product added successfully!', 'success');
       }
 
-      setFormData({ name: '', price: '', stock: '' });
+      setFormData({ 
+        name: '', 
+        price: '', 
+        stock: '', 
+        category: '', 
+        sku: '', 
+        supplier: '', 
+        description: '', 
+        image_url: '', 
+        is_active: true 
+      });
       setEditingId(null);
       setShowForm(false);
       fetchProducts();
@@ -87,14 +107,30 @@ const Inventory = () => {
     setFormData({
       name: product.name,
       price: product.price.toString(),
-      stock: product.stock.toString()
+      stock: product.stock.toString(),
+      category: product.category || '',
+      sku: product.sku || '',
+      supplier: product.supplier || '',
+      description: product.description || '',
+      image_url: product.image_url || '',
+      is_active: product.is_active !== undefined ? product.is_active : true
     });
     setShowForm(true);
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormData({ name: '', price: '', stock: '' });
+    setFormData({ 
+      name: '', 
+      price: '', 
+      stock: '', 
+      category: '', 
+      sku: '', 
+      supplier: '', 
+      description: '', 
+      image_url: '', 
+      is_active: true 
+    });
     setShowForm(false);
   };
 
@@ -241,6 +277,70 @@ const Inventory = () => {
                     required
                   />
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">Category (Optional)</label>
+                  <input
+                    type="text"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="e.g., Hair Care, Skin Care"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">SKU (Optional)</label>
+                  <input
+                    type="text"
+                    value={formData.sku}
+                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="e.g., SHP-001"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">Supplier (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.supplier}
+                  onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Supplier name"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">Description (Optional)</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  rows="3"
+                  placeholder="Product description"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">Image URL (Optional)</label>
+                <input
+                  type="url"
+                  value={formData.image_url}
+                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="is_active"
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                />
+                <label htmlFor="is_active" className="ml-2 text-gray-700 font-semibold">
+                  Active Product
+                </label>
               </div>
               <button
                 type="submit"
