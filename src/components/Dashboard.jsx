@@ -96,12 +96,16 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
         }
       }
 
+      // Show success alert
+      alert(`✅ Order Completed Successfully!\n\nCustomer: ${name}\nTotal: ₱${total.toFixed(2)}\n\nThank you for your business!`);
+      
       showToast(`Order placed for ${name}! Total: ₱${total.toFixed(2)}`, 'success');
       onClearOrder();
       setCustomerName('');
       setShowPrompt(false);
     } catch (error) {
       console.error('Error processing checkout:', error);
+      alert(`❌ Checkout Failed\n\n${error.message || 'Please try again.'}`);
       showToast(`Error: ${error.message || 'Please try again.'}`, 'error');
     }
   };
