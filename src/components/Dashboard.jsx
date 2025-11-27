@@ -66,17 +66,17 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 flex">
+    <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 flex flex-col lg:flex-row">
       {/* Main Content */}
-      <div className="flex-1 flex flex-col py-4 md:py-8 px-4 md:px-6">
+      <div className="flex-1 flex flex-col py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6 pb-24 lg:pb-8">
       {/* Header: Hamburger Button and Logo */}
-      <div className="flex items-center gap-4 mb-6 md:mb-8">
+      <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
         <div className="relative">
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 hover:bg-teal-600 rounded-lg transition-colors"
+            className="p-1.5 sm:p-2 hover:bg-teal-600 rounded-lg transition-colors"
           >
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
           </button>
@@ -101,81 +101,81 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
         </div>
 
         {/* Logo */}
-        <h1 className="text-3xl md:text-4xl font-serif text-white tracking-wider">SHEARFLOW</h1>
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif text-white tracking-wider">SHEARFLOW</h1>
       </div>
 
       {/* Services Grid */}
-      <div className="flex justify-center w-full mb-6 md:mb-8">
-        <div className="grid grid-cols-2 gap-3 md:gap-4 max-w-3xl w-full">
+      <div className="flex justify-center w-full mb-4 sm:mb-6 md:mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2 sm:gap-3 md:gap-4 max-w-4xl w-full">
         {/* Walk-in Service */}
         <div 
           onClick={() => onNavigate('walkin')}
-          className="bg-white rounded-lg p-6 md:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+          className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
         >
-          <svg className="w-16 h-16 md:w-24 md:h-24 text-teal-500" viewBox="0 0 24 24" fill="currentColor">
+          <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-teal-500" viewBox="0 0 24 24" fill="currentColor">
             <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/>
           </svg>
-          <span className="mt-3 text-gray-800 font-semibold text-sm md:text-base">Walk-in Client</span>
+          <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">Walk-in Client</span>
         </div>
 
         {/* Stylist  */}
         <div 
           onClick={() => onNavigate('stylist')}
-          className="bg-white rounded-lg p-6 md:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+          className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
         >
-          <svg className="w-16 h-16 md:w-24 md:h-24 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <circle cx="12" cy="8" r="4"/>
             <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
             <line x1="20" y1="8" x2="20" y2="14"/>
           </svg>
-          <span className="mt-3 text-gray-800 font-semibold text-sm md:text-base">Stylist</span>
+          <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">Stylist</span>
         </div>
 
         {/* Services */}
         <div 
           onClick={() => onNavigate('services')}
-          className="bg-white rounded-lg p-6 md:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+          className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
         >
-          <svg className="w-16 h-16 md:w-24 md:h-24" viewBox="0 0 100 100">
+          <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20" viewBox="0 0 100 100">
             <path fill="#e74c3c" d="M30 20 L30 50 L20 60 L30 70 L30 80 L50 80 L50 50" />
             <path fill="#3498db" d="M70 20 L70 50 L80 60 L70 70 L70 80 L50 80 L50 50" />
             <circle fill="#f39c12" cx="50" cy="35" r="8"/>
           </svg>
-          <span className="mt-3 text-gray-800 font-semibold text-sm md:text-base">Services</span>
+          <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">Services</span>
         </div>
 
         {/* Products */}
         <div 
           onClick={() => onNavigate('products')}
-          className="bg-white rounded-lg p-6 md:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+          className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
         >
-          <svg className="w-16 h-16 md:w-24 md:h-24 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
+          <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20 6h-2.18c.11-.31.18-.65.18-1a2.996 2.996 0 0 0-5.5-1.65l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/>
           </svg>
-          <span className="mt-3 text-gray-800 font-semibold text-sm md:text-base">Products</span>
+          <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">Products</span>
         </div>
 
         {/* Sales  */}
         <div 
           onClick={() => onNavigate('sales')}
-          className="bg-white rounded-lg p-6 md:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer col-span-2"
+          className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer col-span-2 md:col-span-1"
         >
-          <svg className="w-16 h-16 md:w-24 md:h-24" viewBox="0 0 100 100">
+          <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20" viewBox="0 0 100 100">
             <circle fill="#f4d03f" cx="35" cy="30" r="15"/>
             <text x="30" y="35" fontSize="12" fill="#333" fontWeight="bold">Sale!</text>
             <path fill="#5dade2" d="M45 45 Q50 40 55 45 L60 50 L55 55 L50 52 L45 55 L40 50 Z"/>
             <circle fill="#ec7063" cx="70" cy="35" r="6"/>
             <circle fill="#58d68d" cx="65" cy="50" r="5"/>
           </svg>
-          <span className="mt-3 text-gray-800 font-semibold text-sm md:text-base">Sales</span>
+          <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">Sales</span>
         </div>
         </div>
       </div>
       </div>
 
       {/* Order Tally - Right Sidebar */}
-      <div className="w-80 bg-white shadow-2xl p-6 overflow-y-auto">
-        <h2 className="text-2xl font-bold text-black mb-6 pb-3 border-b-2 border-gray-300">Order Summary</h2>
+      <div className="hidden lg:block lg:w-80 xl:w-96 bg-white shadow-2xl p-4 lg:p-6 overflow-y-auto">
+        <h2 className="text-xl lg:text-2xl font-bold text-black mb-4 lg:mb-6 pb-2 lg:pb-3 border-b-2 border-gray-300">Order Summary</h2>
         
         {/* Order Items */}
         <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
@@ -285,6 +285,39 @@ const Dashboard = ({ onNavigate, orderItems = [], onRemoveFromOrder, onUpdateQua
           >
             Clear Order
           </button>
+        </div>
+      </div>
+
+      {/* Mobile Bottom Bar - Order Summary */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-2xl border-t-2 border-gray-300 p-3 sm:p-4 z-50">
+        <div className="flex items-center justify-between gap-3 max-w-screen-xl mx-auto">
+          <div className="flex-1">
+            <div className="text-xs text-gray-600 mb-1">
+              {orderItems.length} {orderItems.length === 1 ? 'item' : 'items'}
+            </div>
+            <div className="text-lg sm:text-xl font-bold text-black">
+              ₱{total.toFixed(2)}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={onClearOrder}
+              disabled={orderItems.length === 0}
+              className="bg-gray-200 hover:bg-gray-300 text-black font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+            >
+              Clear
+            </button>
+            <button 
+              onClick={handleCheckout}
+              disabled={orderItems.length === 0}
+              className="text-white font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base" 
+              style={{ backgroundColor: '#F29C9B' }} 
+              onMouseOver={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = '#e88a89')} 
+              onMouseOut={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = '#F29C9B')}
+            >
+              Checkout
+            </button>
+          </div>
         </div>
       </div>
 

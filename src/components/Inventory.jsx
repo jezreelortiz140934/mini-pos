@@ -143,46 +143,46 @@ const Inventory = ({ onBack }) => {
   const lowStockCount = products.filter(p => p.stock < 10).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-400 to-purple-500 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 to-purple-500 p-3 sm:p-4 md:p-6 lg:p-8">
       {/* Back Button */}
       <button 
         onClick={onBack}
-        className="mb-8 flex items-center text-white hover:text-purple-200 transition-colors"
+        className="mb-4 sm:mb-6 md:mb-8 flex items-center text-white hover:text-purple-200 transition-colors"
       >
-        <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+        <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" fill="currentColor" viewBox="0 0 24 24">
           <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
         </svg>
       </button>
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-white text-3xl font-bold">Inventory Management</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-white text-xl sm:text-2xl md:text-3xl font-bold">Inventory Management</h1>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-purple-50 transition-colors shadow-lg"
+            className="bg-white text-purple-600 px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold hover:bg-purple-50 transition-colors shadow-lg text-sm sm:text-base"
           >
             {showForm ? 'Hide Form' : '+ Add Product'}
           </button>
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg p-6 shadow-lg">
-            <p className="text-gray-600 text-sm mb-2">Total Products</p>
-            <p className="text-3xl font-bold text-purple-600">{products.length}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
+          <div className="bg-white rounded-lg p-4 sm:p-5 md:p-6 shadow-lg">
+            <p className="text-gray-600 text-xs sm:text-sm mb-1 sm:mb-2">Total Products</p>
+            <p className="text-2xl sm:text-3xl font-bold text-purple-600">{products.length}</p>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-lg">
-            <p className="text-gray-600 text-sm mb-2">Total Items in Stock</p>
-            <p className="text-3xl font-bold text-purple-600">{totalItems}</p>
+          <div className="bg-white rounded-lg p-4 sm:p-5 md:p-6 shadow-lg">
+            <p className="text-gray-600 text-xs sm:text-sm mb-1 sm:mb-2">Total Items in Stock</p>
+            <p className="text-2xl sm:text-3xl font-bold text-purple-600">{totalItems}</p>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow-lg">
-            <p className="text-gray-600 text-sm mb-2">Total Inventory Value</p>
-            <p className="text-3xl font-bold text-purple-600">₱{totalValue.toLocaleString()}</p>
+          <div className="bg-white rounded-lg p-4 sm:p-5 md:p-6 shadow-lg">
+            <p className="text-gray-600 text-xs sm:text-sm mb-1 sm:mb-2">Total Inventory Value</p>
+            <p className="text-2xl sm:text-3xl font-bold text-purple-600">₱{totalValue.toLocaleString()}</p>
           </div>
         </div>
 
         {lowStockCount > 0 && (
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-8 rounded">
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 sm:p-4 mb-4 sm:mb-6 md:mb-8 rounded text-sm sm:text-base">
             <p className="font-bold">Low Stock Alert!</p>
             <p>{lowStockCount} product(s) have less than 10 items in stock.</p>
           </div>
@@ -190,9 +190,9 @@ const Inventory = ({ onBack }) => {
 
         {/* Add/Edit Form */}
         {showForm && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-purple-600">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-purple-600">
                 {editingId ? 'Edit Product' : 'Add New Product'}
               </h2>
               {editingId && (
