@@ -264,19 +264,16 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
           <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">Products</span>
         </div>
 
-        {/* Sales  */}
+        {/* AI Analysis  */}
         <div 
-          onClick={() => navigate('/sales')}
+          onClick={() => navigate('/ai-analysis')}
           className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer col-span-2 md:col-span-1"
         >
-          <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20" viewBox="0 0 100 100">
-            <circle fill="#f4d03f" cx="35" cy="30" r="15"/>
-            <text x="30" y="35" fontSize="12" fill="#333" fontWeight="bold">Sale!</text>
-            <path fill="#5dade2" d="M45 45 Q50 40 55 45 L60 50 L55 55 L50 52 L45 55 L40 50 Z"/>
-            <circle fill="#ec7063" cx="70" cy="35" r="6"/>
-            <circle fill="#58d68d" cx="65" cy="50" r="5"/>
+          <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"/>
           </svg>
-          <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">Sales</span>
+          <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">AI Analysis</span>
         </div>
         </div>
       </div>

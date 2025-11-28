@@ -9,7 +9,7 @@ import Dashboard from './components/Dashboard';
 import WalkInAppointment from './components/WalkInAppointment';
 import Services from './components/Services';
 import Stylist from './components/Stylist';
-import Sales from './components/Sales';
+import AIAnalysis from './components/AIAnalysis';
 import Products from './components/Products';
 import Inventory from './components/Inventory';
 import AdminDashboard from './components/AdminDashboard';
@@ -173,10 +173,10 @@ function App() {
             } 
           />
           <Route 
-            path="/sales" 
+            path="/ai-analysis" 
             element={
               <ProtectedRoute>
-                <Sales />
+                <AIAnalysis />
               </ProtectedRoute>
             } 
           />
