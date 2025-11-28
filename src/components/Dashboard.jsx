@@ -264,17 +264,6 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
           <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">Products</span>
         </div>
 
-        {/* AI Analysis  */}
-        <div 
-          onClick={() => navigate('/ai-analysis')}
-          className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer col-span-2 md:col-span-1"
-        >
-          <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-            <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"/>
-          </svg>
-          <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">AI Analysis</span>
-        </div>
         </div>
       </div>
       </div>
