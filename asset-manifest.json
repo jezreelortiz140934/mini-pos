@@ -1,16 +1,17 @@
 {
   "files": {
-    "main.css": "/mini-pos/static/css/main.853f716b.css",
-    "main.js": "/mini-pos/static/js/main.8223a78b.js",
-    "static/js/453.7ae7a34b.chunk.js": "/mini-pos/static/js/453.7ae7a34b.chunk.js",
-    "service-worker.js": "/mini-pos/service-worker.js",
-    "index.html": "/mini-pos/index.html",
-    "main.853f716b.css.map": "/mini-pos/static/css/main.853f716b.css.map",
-    "main.8223a78b.js.map": "/mini-pos/static/js/main.8223a78b.js.map",
-    "453.7ae7a34b.chunk.js.map": "/mini-pos/static/js/453.7ae7a34b.chunk.js.map"
+    "main.css": "/static/css/main.5f1fd3b7.css",
+    "main.js": "/static/js/main.617dfca6.js",
+    "static/js/453.7ae7a34b.chunk.js": "/static/js/453.7ae7a34b.chunk.js",
+    "static/media/Keratin.jpg": "/static/media/Keratin.e79fcf80ccc46030ef90.jpg",
+    "service-worker.js": "/service-worker.js",
+    "index.html": "/index.html",
+    "main.5f1fd3b7.css.map": "/static/css/main.5f1fd3b7.css.map",
+    "main.617dfca6.js.map": "/static/js/main.617dfca6.js.map",
+    "453.7ae7a34b.chunk.js.map": "/static/js/453.7ae7a34b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.853f716b.css",
-    "static/js/main.8223a78b.js"
+    "static/css/main.5f1fd3b7.css",
+    "static/js/main.617dfca6.js"
   ]
 }
