@@ -40,11 +40,8 @@ const Services = ({ onAddToOrder }) => {
     }
   };
 
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 p-8">
-      {/* Back Button */}
       <button 
         onClick={() => navigate('/')}
         className="mb-8 flex items-center text-white hover:text-pink-200 transition-colors"
@@ -60,7 +57,6 @@ const Services = ({ onAddToOrder }) => {
           <p className="text-teal-100 mt-2">Select a service to add to your order</p>
         </div>
 
-        {/* Services Grid */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, index) => (
@@ -78,7 +74,6 @@ const Services = ({ onAddToOrder }) => {
                 key={service.id}
                 className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all"
               >
-                {/* Image */}
                 {service.image_url && (
                   <div className="h-64 bg-gray-200 overflow-hidden">
                     <img 
@@ -89,7 +84,6 @@ const Services = ({ onAddToOrder }) => {
                   </div>
                 )}
                 
-                {/* Content */}
                 <div className="p-6 text-center">
                   <h3 className="text-teal-600 text-xl font-bold mb-2">{service.title}</h3>
                   {service.description && (
@@ -109,7 +103,6 @@ const Services = ({ onAddToOrder }) => {
         )}
       </div>
 
-      {/* Toast Notifications */}
       {toasts.map((toast) => (
         <Toast
           key={toast.id}

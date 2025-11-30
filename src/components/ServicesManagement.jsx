@@ -48,8 +48,6 @@ const ServicesManagement = () => {
     fetchServices();
   }, [fetchServices]);
 
-
-
   const handleImageUpload = async (file) => {
     try {
       setUploading(true);
@@ -57,14 +55,12 @@ const ServicesManagement = () => {
       const fileName = `service-${Date.now()}.${fileExt}`;
       const filePath = `services/${fileName}`;
 
-      // Upload file to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('service-images')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data } = supabase.storage
         .from('service-images')
         .getPublicUrl(filePath);
@@ -84,10 +80,9 @@ const ServicesManagement = () => {
     try {
       let imageUrl = formData.image_url;
 
-      // Upload image if file is selected
       if (imageFile) {
         imageUrl = await handleImageUpload(imageFile);
-        if (!imageUrl) return; // Stop if upload failed
+        if (!imageUrl) return;
       }
 
       const serviceData = {
@@ -171,14 +166,22 @@ const ServicesManagement = () => {
   };
 
   const handleCancelEdit = () => {
-    setFormData({ title: '', description: '', price: '' });
+    setFormData({ 
+      title: '', 
+      description: '', 
+      price: '', 
+      duration: '', 
+      category: '', 
+      image_url: '', 
+      is_active: true 
+    });
+    setImageFile(null);
     setEditingId(null);
     setShowForm(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-400 to-green-600 p-8">
-      {/* Back Button */}
       <button 
         onClick={() => navigate('/admin')}
         className="mb-8 flex items-center text-white hover:text-green-200 transition-colors"
@@ -199,7 +202,6 @@ const ServicesManagement = () => {
           </button>
         </div>
 
-        {/* Add/Edit Form */}
         {showForm && (
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
             <div className="flex justify-between items-center mb-6">
@@ -302,15 +304,15 @@ const ServicesManagement = () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors"
+                disabled={uploading}
+                className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors disabled:bg-gray-400"
               >
-                {editingId ? 'Update Service' : 'Add Service'}
+                {uploading ? 'Uploading...' : (editingId ? 'Update Service' : 'Add Service')}
               </button>
             </form>
           </div>
         )}
 
-        {/* Services Grid */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, index) => (
@@ -328,7 +330,6 @@ const ServicesManagement = () => {
                 key={service.id}
                 className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all relative"
               >
-                {/* Edit/Delete Buttons */}
                 <div className="absolute top-4 right-4 flex gap-2 z-10">
                   <button
                     onClick={() => handleEdit(service)}
@@ -350,7 +351,6 @@ const ServicesManagement = () => {
                   </button>
                 </div>
 
-                {/* Image */}
                 {service.image_url && (
                   <div className="h-64 bg-gray-200 overflow-hidden">
                     <img 
@@ -361,7 +361,6 @@ const ServicesManagement = () => {
                   </div>
                 )}
                 
-                {/* Content */}
                 <div className="p-6 text-center">
                   <h3 className="text-green-600 text-xl font-bold mb-2">{service.title}</h3>
                   {service.description && (
@@ -375,7 +374,6 @@ const ServicesManagement = () => {
         )}
       </div>
 
-      {/* Toast Notifications */}
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
@@ -385,7 +383,6 @@ const ServicesManagement = () => {
         />
       ))}
 
-      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteDialog.isOpen}
         onClose={() => setDeleteDialog({ isOpen: false, id: null, title: '' })}
