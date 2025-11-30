@@ -65,7 +65,7 @@ const Services = ({ onAddToOrder }) => {
     
     // Keratin
     if (serviceName.includes('keratin')) {
-      return 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=400&fit=crop';
+      return 'https://ladyandthehair.com.au/wp-content/uploads/2024/10/Keratin-Treatment-Process.jpg';
     }
     
     // Hair Spa
