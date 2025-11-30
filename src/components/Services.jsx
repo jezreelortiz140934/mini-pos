@@ -4,7 +4,6 @@ import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import Toast from './Toast';
 import { useToast } from '../hooks/useToast';
-import KeratinImage from '../assets/Keratin.jpg';
 
 const Services = ({ onAddToOrder }) => {
   const navigate = useNavigate();
@@ -41,47 +40,7 @@ const Services = ({ onAddToOrder }) => {
     }
   };
 
-  const getServiceImage = (title) => {
-    const serviceName = title.toLowerCase();
-    
-    // Haircut
-    if (serviceName.includes('haircut') || serviceName.includes('hair cut')) {
-      return 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=400&fit=crop';
-    }
-    
-    // Color/Coloring
-    if (serviceName.includes('color')) {
-      return 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=400&fit=crop';
-    }
-    
-    // Perm/Perming
-    if (serviceName.includes('perm')) {
-      return 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600&h=400&fit=crop';
-    }
-    
-    // Conditioning/Treatment
-    if (serviceName.includes('condition') || serviceName.includes('treatment')) {
-      return 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&h=400&fit=crop';
-    }
-    
-    // Keratin
-    if (serviceName.includes('keratin')) {
-      return KeratinImage;
-    }
-    
-    // Hair Spa
-    if (serviceName.includes('spa')) {
-      return 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=600&h=400&fit=crop';
-    }
-    
-    // Body Massage
-    if (serviceName.includes('massage')) {
-      return 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&h=400&fit=crop';
-    }
-    
-    // Default image - salon/beauty
-    return 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=600&h=400&fit=crop';
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 p-8">
@@ -120,13 +79,15 @@ const Services = ({ onAddToOrder }) => {
                 className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all"
               >
                 {/* Image */}
-                <div className="h-64 bg-gray-200 overflow-hidden">
-                  <img 
-                    src={service.image_url || getServiceImage(service.title)} 
-                    alt={service.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                {service.image_url && (
+                  <div className="h-64 bg-gray-200 overflow-hidden">
+                    <img 
+                      src={service.image_url} 
+                      alt={service.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 
                 {/* Content */}
                 <div className="p-6 text-center">

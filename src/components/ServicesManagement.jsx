@@ -48,32 +48,7 @@ const ServicesManagement = () => {
     fetchServices();
   }, [fetchServices]);
 
-  const getServiceImage = (title) => {
-    const serviceName = title.toLowerCase();
-    
-    if (serviceName.includes('haircut') || serviceName.includes('hair cut')) {
-      return 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600&h=400&fit=crop';
-    }
-    if (serviceName.includes('color')) {
-      return 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=400&fit=crop';
-    }
-    if (serviceName.includes('perm')) {
-      return 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600&h=400&fit=crop';
-    }
-    if (serviceName.includes('condition') || serviceName.includes('treatment')) {
-      return 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&h=400&fit=crop';
-    }
-    if (serviceName.includes('keratin')) {
-      return 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&h=400&fit=crop';
-    }
-    if (serviceName.includes('spa')) {
-      return 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=600&h=400&fit=crop';
-    }
-    if (serviceName.includes('massage')) {
-      return 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&h=400&fit=crop';
-    }
-    return 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=600&h=400&fit=crop';
-  };
+
 
   const handleImageUpload = async (file) => {
     try {
@@ -376,13 +351,15 @@ const ServicesManagement = () => {
                 </div>
 
                 {/* Image */}
-                <div className="h-64 bg-gray-200 overflow-hidden">
-                  <img 
-                    src={service.image_url || getServiceImage(service.title)} 
-                    alt={service.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                {service.image_url && (
+                  <div className="h-64 bg-gray-200 overflow-hidden">
+                    <img 
+                      src={service.image_url} 
+                      alt={service.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 
                 {/* Content */}
                 <div className="p-6 text-center">
