@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient';
 import SkeletonCard from './loading/SkeletonCard';
 import Toast from './Toast';
 import { useToast } from '../hooks/useToast';
+import KeratinImage from '../assets/Keratin.jpg';
 
 const Services = ({ onAddToOrder }) => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const Services = ({ onAddToOrder }) => {
     
     // Keratin
     if (serviceName.includes('keratin')) {
-      return 'https://ladyandthehair.com.au/wp-content/uploads/2024/10/Keratin-Treatment-Process.jpg';
+      return KeratinImage;
     }
     
     // Hair Spa
@@ -121,7 +122,7 @@ const Services = ({ onAddToOrder }) => {
                 {/* Image */}
                 <div className="h-64 bg-gray-200 overflow-hidden">
                   <img 
-                    src={getServiceImage(service.title)} 
+                    src={service.image_url || getServiceImage(service.title)} 
                     alt={service.title}
                     className="w-full h-full object-cover"
                   />

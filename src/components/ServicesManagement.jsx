@@ -20,6 +20,8 @@ const ServicesManagement = () => {
     image_url: '',
     is_active: true
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null, title: '' });
   const { toasts, showToast, removeToast } = useToast();
@@ -73,16 +75,53 @@ const ServicesManagement = () => {
     return 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=600&h=400&fit=crop';
   };
 
+  const handleImageUpload = async (file) => {
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `service-${Date.now()}.${fileExt}`;
+      const filePath = `services/${fileName}`;
+
+      // Upload file to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('service-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('service-images')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      showToast('Error uploading image', 'error');
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let imageUrl = formData.image_url;
+
+      // Upload image if file is selected
+      if (imageFile) {
+        imageUrl = await handleImageUpload(imageFile);
+        if (!imageUrl) return; // Stop if upload failed
+      }
+
       const serviceData = {
         title: formData.title,
         description: formData.description,
         price: parseFloat(formData.price),
         duration: formData.duration ? parseInt(formData.duration) : null,
         category: formData.category || null,
-        image_url: formData.image_url || null,
+        image_url: imageUrl || null,
         is_active: formData.is_active
       };
 
@@ -112,6 +151,7 @@ const ServicesManagement = () => {
         image_url: '', 
         is_active: true 
       });
+      setImageFile(null);
       setEditingId(null);
       setShowForm(false);
       fetchServices();
@@ -256,14 +296,22 @@ const ServicesManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Image URL (Optional)</label>
+                <label className="block text-gray-700 font-semibold mb-2">Upload Image</label>
                 <input
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files[0])}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="https://..."
                 />
+                {imageFile && (
+                  <p className="text-sm text-gray-600 mt-2">Selected: {imageFile.name}</p>
+                )}
+                {formData.image_url && !imageFile && (
+                  <div className="mt-2">
+                    <img src={formData.image_url} alt="Current" className="w-32 h-32 object-cover rounded" />
+                    <p className="text-sm text-gray-600 mt-1">Current image</p>
+                  </div>
+                )}
               </div>
               <div className="flex items-center">
                 <input
@@ -330,7 +378,7 @@ const ServicesManagement = () => {
                 {/* Image */}
                 <div className="h-64 bg-gray-200 overflow-hidden">
                   <img 
-                    src={getServiceImage(service.title)} 
+                    src={service.image_url || getServiceImage(service.title)} 
                     alt={service.title}
                     className="w-full h-full object-cover"
                   />

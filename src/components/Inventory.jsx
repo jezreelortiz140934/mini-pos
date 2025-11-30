@@ -14,6 +14,9 @@ const Inventory = () => {
   const [editingId, setEditingId] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, id: null, name: '' });
   const { toasts, showToast, removeToast } = useToast();
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -48,9 +51,43 @@ const Inventory = () => {
     fetchProducts();
   }, [fetchProducts]);
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setUploading(true);
+
+      // Handle image upload if a file is selected
+      let imageUrl = formData.image_url;
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = fileName;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+      }
+
       const productData = {
         name: formData.name,
         price: parseFloat(formData.price),
@@ -59,7 +96,7 @@ const Inventory = () => {
         sku: formData.sku || null,
         supplier: formData.supplier || null,
         description: formData.description || null,
-        image_url: formData.image_url || null,
+        image_url: imageUrl || null,
         is_active: formData.is_active
       };
 
@@ -93,12 +130,16 @@ const Inventory = () => {
         image_url: '', 
         is_active: true 
       });
+      setImageFile(null);
+      setImagePreview(null);
       setEditingId(null);
       setShowForm(false);
       fetchProducts();
     } catch (error) {
       console.error('Error saving product:', error);
       showToast('Error saving product', 'error');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -115,6 +156,8 @@ const Inventory = () => {
       image_url: product.image_url || '',
       is_active: product.is_active !== undefined ? product.is_active : true
     });
+    setImagePreview(product.image_url || null);
+    setImageFile(null);
     setShowForm(true);
   };
 
@@ -131,6 +174,8 @@ const Inventory = () => {
       image_url: '', 
       is_active: true 
     });
+    setImageFile(null);
+    setImagePreview(null);
     setShowForm(false);
   };
 
@@ -321,14 +366,32 @@ const Inventory = () => {
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Image URL (Optional)</label>
+                <label className="block text-gray-700 font-semibold mb-2">Product Image (Optional)</label>
                 <input
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="https://..."
                 />
+                {imagePreview && (
+                  <div className="mt-4">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-lg"
+                    />
+                  </div>
+                )}
+                <div className="mt-2">
+                  <label className="block text-gray-700 font-semibold mb-2">Or enter Image URL</label>
+                  <input
+                    type="url"
+                    value={formData.image_url}
+                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="https://..."
+                  />
+                </div>
               </div>
               <div className="flex items-center">
                 <input
@@ -344,9 +407,10 @@ const Inventory = () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-purple-500 text-white py-3 rounded-lg font-semibold hover:bg-purple-600 transition-colors"
+                disabled={uploading}
+                className="w-full bg-purple-500 text-white py-3 rounded-lg font-semibold hover:bg-purple-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                {editingId ? 'Update Product' : 'Add Product'}
+                {uploading ? 'Uploading...' : (editingId ? 'Update Product' : 'Add Product')}
               </button>
             </form>
           </div>
