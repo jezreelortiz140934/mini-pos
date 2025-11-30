@@ -35,7 +35,7 @@ const Services = ({ onAddToOrder }) => {
 
   const handleServiceClick = (service) => {
     if (onAddToOrder) {
-      onAddToOrder(service, 'service');
+      onAddToOrder(service, 'service', navigate);
       showToast(`Added ${service.title} to order!`, 'success');
     }
   };

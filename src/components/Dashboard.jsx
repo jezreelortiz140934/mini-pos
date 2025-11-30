@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import Toast from './Toast';
 import CheckoutDialog from './CheckoutDialog';
@@ -8,11 +8,25 @@ import { useToast } from '../hooks/useToast';
 
 const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onClearOrder, onLogout, user }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { toasts, showToast, removeToast } = useToast();
+
+  // Handle loading state when returning from product/service pages
+  useEffect(() => {
+    if (location.state?.showLoading) {
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        // Clear the state
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 800);
+    }
+  }, [location, navigate]);
 
   const handleLogout = () => {
     setIsMenuOpen(false);
@@ -164,6 +178,16 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 flex flex-col lg:flex-row">
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-500"></div>
+            <p className="text-gray-700 font-semibold">Adding to order...</p>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6 pb-24 lg:pb-8">
       {/* Header: Hamburger Button and Logo */}

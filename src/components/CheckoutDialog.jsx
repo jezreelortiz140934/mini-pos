@@ -1,39 +1,66 @@
 import React, { useState } from 'react';
 import PaymentMethodSelector from './PaymentMethodSelector';
+import { validateVoucher, markVoucherAsUsed } from '../data/vouchers';
 
-const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal, discount: initialDiscount = 0 }) => {
+const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal }) => {
   const [customerName, setCustomerName] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
-  const [discount, setDiscount] = useState(initialDiscount);
+  const [voucherCode, setVoucherCode] = useState('');
+  const [appliedVoucher, setAppliedVoucher] = useState(null);
+  const [voucherError, setVoucherError] = useState('');
   const [notes, setNotes] = useState('');
 
   if (!isOpen) return null;
 
-  const discountValue = parseFloat(discount) || 0;
-  const total = Math.max(0, subtotal - discountValue);
+  const discountPercent = appliedVoucher ? appliedVoucher.discount : 0;
+  const discountAmount = (subtotal * discountPercent) / 100;
+  const total = Math.max(0, subtotal - discountAmount);
+
+  const handleApplyVoucher = () => {
+    if (!voucherCode.trim()) {
+      setVoucherError('Please enter a voucher code');
+      return;
+    }
+
+    const result = validateVoucher(voucherCode);
+    if (result.valid) {
+      setAppliedVoucher({ code: result.code, discount: result.discount });
+      setVoucherError('');
+    } else {
+      setVoucherError(result.message);
+      setAppliedVoucher(null);
+    }
+  };
+
+  const handleRemoveVoucher = () => {
+    setAppliedVoucher(null);
+    setVoucherCode('');
+    setVoucherError('');
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (customerName.trim()) {
+      // Mark voucher as used if applied
+      if (appliedVoucher) {
+        markVoucherAsUsed(appliedVoucher.code);
+      }
+
       onSubmit({
         customerName: customerName.trim(),
         paymentMethod,
-        discount: parseFloat(discount),
+        discount: discountAmount,
+        voucherCode: appliedVoucher?.code || null,
         notes: notes.trim()
       });
       // Reset form
       setCustomerName('');
       setPaymentMethod('cash');
-      setDiscount(0);
+      setVoucherCode('');
+      setAppliedVoucher(null);
+      setVoucherError('');
       setNotes('');
       onClose();
-    }
-  };
-
-  const handleDiscountChange = (value) => {
-    const numValue = parseFloat(value) || 0;
-    if (numValue >= 0 && numValue <= subtotal) {
-      setDiscount(numValue);
     }
   };
 
@@ -66,61 +93,55 @@ const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal, discount: initial
               onChange={setPaymentMethod}
             />
 
-            {/* Discount */}
+            {/* Voucher Code */}
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
-                Discount (Optional)
+                Voucher Code (Optional)
               </label>
-              <div className="relative mb-2">
-                <span className="absolute left-4 top-3 text-gray-500">₱</span>
-                <input
-                  type="tel"
-                  inputMode="decimal"
-                  value={discount || ''}
-                  onChange={(e) => handleDiscountChange(e.target.value)}
-                  placeholder="0.00"
-                  min="0"
-                  max={subtotal}
-                  className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                />
-              </div>
-              {/* Number Pad */}
-              <div className="grid grid-cols-4 gap-2">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0, '⌫'].map((num) => (
+              
+              {!appliedVoucher ? (
+                <>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={voucherCode}
+                      onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                      placeholder="Enter voucher code"
+                      className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent uppercase"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyVoucher}
+                      disabled={!voucherCode.trim()}
+                      className="px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {voucherError && (
+                    <p className="text-red-600 text-sm mt-1">{voucherError}</p>
+                  )}
+                </>
+              ) : (
+                <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="font-semibold text-green-700">{appliedVoucher.code}</p>
+                      <p className="text-sm text-green-600">{appliedVoucher.discount}% discount applied</p>
+                    </div>
+                  </div>
                   <button
-                    key={num}
                     type="button"
-                    onClick={() => {
-                      if (num === '⌫') {
-                        setDiscount(prev => {
-                          const str = (prev || '0').toString();
-                          const newStr = str.slice(0, -1);
-                          return newStr === '' ? 0 : newStr;
-                        });
-                      } else if (num === '.') {
-                        const str = (discount || '0').toString();
-                        if (!str.includes('.')) {
-                          setDiscount(str + '.');
-                        }
-                      } else {
-                        const currentStr = (discount || '0').toString();
-                        const newValue = currentStr === '0' ? num.toString() : currentStr + num.toString();
-                        const numValue = parseFloat(newValue);
-                        if (!isNaN(numValue) && numValue <= subtotal) {
-                          setDiscount(newValue);
-                        }
-                      }
-                    }}
-                    className={`py-3 rounded-lg font-semibold text-lg transition-colors ${
-                      num === '⌫' 
-                        ? 'bg-red-100 hover:bg-red-200 text-red-700' 
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-                    }`}
+                    onClick={handleRemoveVoucher}
+                    className="text-red-600 hover:text-red-700 font-semibold text-sm"
                   >
-                    {num}
+                    Remove
                   </button>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Notes */}
@@ -143,10 +164,10 @@ const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal, discount: initial
                 <span>Subtotal:</span>
                 <span className="font-semibold">₱{subtotal.toFixed(2)}</span>
               </div>
-              {discountValue > 0 && (
-                <div className="flex justify-between text-red-600 mb-2">
-                  <span>Discount:</span>
-                  <span className="font-semibold">-₱{discountValue.toFixed(2)}</span>
+              {appliedVoucher && discountAmount > 0 && (
+                <div className="flex justify-between text-green-600 mb-2">
+                  <span>{appliedVoucher.discount}% OFF - Save:</span>
+                  <span className="font-semibold">-₱{discountAmount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between text-lg font-bold text-teal-700 pt-2 border-t-2 border-teal-300">
