@@ -42,7 +42,7 @@ const Sales = () => {
     <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 p-8">
       {/* Back Button */}
       <button 
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/admin')}
         className="mb-8 flex items-center text-white hover:text-pink-200 transition-colors"
       >
         <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
