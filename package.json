@@ -2,7 +2,6 @@
   "name": "shearflow",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://jezreelortiz140934.github.io/mini-pos",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.84.0",
