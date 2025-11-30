@@ -77,6 +77,7 @@ const Sales = () => {
                   <th className="py-4 px-6 text-white font-bold text-left border-r border-teal-600">Date</th>
                   <th className="py-4 px-6 text-white font-bold text-left border-r border-teal-600">Name</th>
                   <th className="py-4 px-6 text-white font-bold text-left border-r border-teal-600">Service</th>
+                  <th className="py-4 px-6 text-white font-bold text-left border-r border-teal-600">Notes</th>
                   <th className="py-4 px-6 text-white font-bold text-right">Price</th>
                 </tr>
               </thead>
@@ -94,12 +95,15 @@ const Sales = () => {
                     </td>
                     <td className="py-4 px-6 border-r border-gray-200 font-medium">{sale.customer_name}</td>
                     <td className="py-4 px-6 border-r border-gray-200">{sale.service}</td>
+                    <td className="py-4 px-6 border-r border-gray-200 text-sm text-gray-600 italic">
+                      {sale.notes || '-'}
+                    </td>
                     <td className="py-4 px-6 text-right font-semibold text-teal-600">₱{sale.price.toLocaleString()}</td>
                   </tr>
                 ))}
                 {/* Total Row */}
                 <tr className="bg-teal-100 font-bold">
-                  <td colSpan="4" className="py-4 px-6 text-right text-lg">Total Sales:</td>
+                  <td colSpan="5" className="py-4 px-6 text-right text-lg">Total Sales:</td>
                   <td className="py-4 px-6 text-right text-xl text-teal-700">₱{totalSales.toLocaleString()}</td>
                 </tr>
               </tbody>

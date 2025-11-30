@@ -109,6 +109,7 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
           transaction_date: new Date().toISOString(),
           order_id: orderData.id,
           payment_method: paymentMethod,
+          notes: notes,
           user_id: user?.id
         }]);
 

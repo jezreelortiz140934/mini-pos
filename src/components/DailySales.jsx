@@ -194,6 +194,14 @@ const DailySales = () => {
                     </div>
                   </div>
                   
+                  {/* Notes */}
+                  {sale.notes && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <p className="text-gray-600 text-sm font-semibold mb-1">Notes:</p>
+                      <p className="text-gray-700 text-sm italic">{sale.notes}</p>
+                    </div>
+                  )}
+                  
                   {/* Order Items */}
                   {sale.items && sale.items.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-gray-200">
