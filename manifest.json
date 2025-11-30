@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "SHEARFLOW",
+  "name": "SHEARFLOW POS System",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,8 +18,9 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/mini-pos",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#14b8a6",
+  "background_color": "#ffffff",
+  "description": "Point of Sale system for SHEARFLOW salon"
 }
