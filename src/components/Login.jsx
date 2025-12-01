@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import Toast from './Toast';
 import { useToast } from '../hooks/useToast';
+import sfLogo from '../assets/sflogo.png';
 
 const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
@@ -98,15 +99,7 @@ const Login = ({ onLoginSuccess }) => {
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="bg-teal-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-12 h-12 text-teal-500" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="3"/>
-                <path d="M30 40 Q50 25 70 40" fill="none" stroke="currentColor" strokeWidth="3"/>
-                <circle cx="35" cy="45" r="3" fill="currentColor"/>
-                <circle cx="65" cy="45" r="3" fill="currentColor"/>
-                <path d="M35 60 Q50 70 65 60" fill="none" stroke="currentColor" strokeWidth="3"/>
-              </svg>
-            </div>
+            <img src={sfLogo} alt="SHEARFLOW" className="w-20 h-20 mx-auto mb-4" />
             <h2 className="text-3xl font-serif text-gray-800 mb-1">SHEARFLOW</h2>
             <p className="text-gray-600">Welcome back!</p>
           </div>
