@@ -117,7 +117,7 @@ function App() {
   };
 
   return (
-    <Router>
+    <Router basename="/mini-pos">
       <div className="App">
         <Routes>
           {/* Public Routes */}
