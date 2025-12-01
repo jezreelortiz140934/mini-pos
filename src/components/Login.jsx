@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import Toast from './Toast';
 import { useToast } from '../hooks/useToast';
-import sfLogo from '../assets/sflogo.png';
 
 const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
@@ -97,11 +96,10 @@ const Login = ({ onLoginSuccess }) => {
 
         {/* Form Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {/* Logo */}
+          {/* Header */}
           <div className="text-center mb-8">
-            <img src={sfLogo} alt="SHEARFLOW" className="w-20 h-20 mx-auto mb-4" />
             <h2 className="text-3xl font-serif text-gray-800 mb-1">SHEARFLOW</h2>
-            <p className="text-gray-600">Welcome back!</p>
+            <p className="text-gray-600">Welcome!</p>
           </div>
 
           {/* Form */}
