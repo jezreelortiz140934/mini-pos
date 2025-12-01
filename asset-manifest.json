@@ -1,16 +1,17 @@
 {
   "files": {
     "main.css": "/mini-pos/static/css/main.5f1fd3b7.css",
-    "main.js": "/mini-pos/static/js/main.fc7a9f23.js",
+    "main.js": "/mini-pos/static/js/main.dd57c737.js",
     "static/js/453.7ae7a34b.chunk.js": "/mini-pos/static/js/453.7ae7a34b.chunk.js",
+    "static/media/sflogo.png": "/mini-pos/static/media/sflogo.a21b2103d3f50ed3180d.png",
     "service-worker.js": "/mini-pos/service-worker.js",
     "index.html": "/mini-pos/index.html",
     "main.5f1fd3b7.css.map": "/mini-pos/static/css/main.5f1fd3b7.css.map",
-    "main.fc7a9f23.js.map": "/mini-pos/static/js/main.fc7a9f23.js.map",
+    "main.dd57c737.js.map": "/mini-pos/static/js/main.dd57c737.js.map",
     "453.7ae7a34b.chunk.js.map": "/mini-pos/static/js/453.7ae7a34b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.5f1fd3b7.css",
-    "static/js/main.fc7a9f23.js"
+    "static/js/main.dd57c737.js"
   ]
 }
