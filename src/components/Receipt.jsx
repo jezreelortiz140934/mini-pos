@@ -1,4 +1,5 @@
 import React from 'react';
+import shearflowLogo from '../assets/shearflow.png';
 
 const Receipt = ({ isOpen, onClose, orderData }) => {
   if (!isOpen || !orderData) return null;
@@ -15,13 +16,7 @@ const Receipt = ({ isOpen, onClose, orderData }) => {
         {/* Receipt Header */}
         <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-6 text-center print:bg-white print:text-black">
           <div className="mb-3">
-            <svg className="w-16 h-16 mx-auto" viewBox="0 0 100 100" fill="currentColor">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="3"/>
-              <path d="M30 40 Q50 25 70 40" fill="none" stroke="currentColor" strokeWidth="3"/>
-              <circle cx="35" cy="45" r="3" fill="currentColor"/>
-              <circle cx="65" cy="45" r="3" fill="currentColor"/>
-              <path d="M35 60 Q50 70 65 60" fill="none" stroke="currentColor" strokeWidth="3"/>
-            </svg>
+            <img src={shearflowLogo} alt="SHEARFLOW" className="w-16 h-16 mx-auto" />
           </div>
           <h1 className="text-3xl font-serif font-bold tracking-wider">SHEARFLOW</h1>
           <p className="text-sm mt-1 opacity-90">Salon Management System</p>
