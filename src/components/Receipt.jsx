@@ -16,7 +16,7 @@ const Receipt = ({ isOpen, onClose, orderData }) => {
         {/* Receipt Header */}
         <div className="bg-gradient-to-r from-teal-500 to-teal-600 text-white p-6 text-center print:bg-white print:text-black">
           <div className="mb-3">
-            <img src={shearflowLogo} alt="SHEARFLOW" className="w-16 h-16 mx-auto" />
+            <img src={shearflowLogo} alt="SHEARFLOW" className="w-20 h-20 mx-auto" />
           </div>
           <h1 className="text-3xl font-serif font-bold tracking-wider">SHEARFLOW</h1>
           <p className="text-sm mt-1 opacity-90">Salon Management System</p>
