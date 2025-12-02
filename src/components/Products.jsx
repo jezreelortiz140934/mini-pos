@@ -128,7 +128,7 @@ const Products = ({ onAddToOrder }) => {
                     />
                   </div>
                 )}
-                <div className="p-6 flex flex-col flex-grow">
+                <div className="p-6 flex flex-col h-full">
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
                   </div>
@@ -150,13 +150,13 @@ const Products = ({ onAddToOrder }) => {
                         onAddToOrder(product, 'product', navigate);
                         showToast(`Added ${product.name} to order!`, 'success');
                       }}
-                      className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition-colors mt-3"
+                      className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition-colors mt-4"
                     >
                       Add to Order
                     </button>
                   )}
                   {product.stock === 0 && (
-                    <div className="text-center text-red-500 font-semibold py-2 mt-3">
+                    <div className="text-center text-red-500 font-semibold py-2 mt-4">
                       Out of Stock
                     </div>
                   )}
