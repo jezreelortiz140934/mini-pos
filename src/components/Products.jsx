@@ -115,7 +115,7 @@ const Products = ({ onAddToOrder }) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 fade-in">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
                 {product.image_url && (
                   <div className="w-full">
                     <img 
@@ -128,11 +128,11 @@ const Products = ({ onAddToOrder }) => {
                     />
                   </div>
                 )}
-                <div className="p-6">
+                <div className="p-6 flex flex-col flex-grow">
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-3 flex-grow">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Price:</span>
                       <span className="font-semibold text-gray-800">₱{product.price.toFixed(2)}</span>
@@ -143,23 +143,23 @@ const Products = ({ onAddToOrder }) => {
                         {product.stock} units
                       </span>
                     </div>
-                    {onAddToOrder && product.stock > 0 && (
-                      <button
-                        onClick={() => {
-                          onAddToOrder(product, 'product', navigate);
-                          showToast(`Added ${product.name} to order!`, 'success');
-                        }}
-                        className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition-colors mt-3"
-                      >
-                        Add to Order
-                      </button>
-                    )}
-                    {product.stock === 0 && (
-                      <div className="text-center text-red-500 font-semibold py-2">
-                        Out of Stock
-                      </div>
-                    )}
                   </div>
+                  {onAddToOrder && product.stock > 0 && (
+                    <button
+                      onClick={() => {
+                        onAddToOrder(product, 'product', navigate);
+                        showToast(`Added ${product.name} to order!`, 'success');
+                      }}
+                      className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition-colors mt-3"
+                    >
+                      Add to Order
+                    </button>
+                  )}
+                  {product.stock === 0 && (
+                    <div className="text-center text-red-500 font-semibold py-2 mt-3">
+                      Out of Stock
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
