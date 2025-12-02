@@ -16,7 +16,7 @@ const LandingPage = () => {
         </div>
 
         {/* Buttons */}
-        <div className="space-y-4 w-full max-w-xs mx-auto">
+        <div className="space-y-3 w-full max-w-xs mx-auto">
           <button
             onClick={() => navigate('/signup')}
             className="w-full bg-pink-400 hover:bg-pink-500 text-white font-bold py-4 px-8 rounded-full transition-all transform hover:scale-105 shadow-lg text-lg"
