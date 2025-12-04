@@ -150,6 +150,38 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
         }
       }
 
+      // Update inventory for products used in services
+      const serviceItems = orderItems.filter(item => item.type === 'service' && item.productsUsed && item.productsUsed.length > 0);
+      
+      for (const serviceItem of serviceItems) {
+        for (const product of serviceItem.productsUsed) {
+          // Get current stock
+          const { data: productData, error: fetchError } = await supabase
+            .from('products')
+            .select('stock')
+            .eq('id', product.id)
+            .single();
+
+          if (fetchError) {
+            console.error('Error fetching product for service:', fetchError);
+            continue;
+          }
+
+          // Calculate new stock (deduct 1 unit per service since quantity is for the service, not the product)
+          const newStock = productData.stock - (serviceItem.qty || 1);
+
+          // Update inventory
+          const { error: updateError } = await supabase
+            .from('products')
+            .update({ stock: newStock })
+            .eq('id', product.id);
+
+          if (updateError) {
+            console.error('Error updating product inventory for service:', updateError);
+          }
+        }
+      }
+
       // Generate order number
       const orderNumber = `SHF${Date.now().toString().slice(-8)}`;
       
@@ -179,7 +211,7 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-400 to-teal-500 flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -190,57 +222,57 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
         </div>
       )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6 pb-24 lg:pb-8">
-      {/* Header: Hamburger Button and Logo */}
-      <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
-        <div className="relative">
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-1.5 sm:p-2 hover:bg-teal-600 rounded-lg transition-colors"
-          >
-            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-          </button>
+      {/* Header - Fixed at Top */}
+      <div className="fixed top-0 left-0 right-0 lg:right-80 xl:right-96 bg-gradient-to-br from-teal-400 to-teal-500 z-40 px-3 sm:px-4 md:px-6 py-4">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 hover:bg-teal-600 rounded-lg transition-colors bg-white bg-opacity-20"
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>
+              </svg>
+            </button>
 
-          {/* Dropdown Menu */}
-          {isMenuOpen && (
-            <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-xl py-2 w-56 z-50">
-              {user && (
-                <div className="px-4 py-3 border-b border-gray-200">
-                  <p className="text-xs text-gray-500">Logged in as</p>
-                  <p className="font-semibold text-gray-800 truncate">
-                    {user.user_metadata?.first_name} {user.user_metadata?.last_name}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                </div>
-              )}
-              <button 
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  navigate('/admin');
-                }}
-                className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors"
-              >
-                Admin Dashboard
-              </button>
-              <button 
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-3 hover:bg-gray-100 text-red-600 font-medium transition-colors border-t border-gray-200"
-              >
-                Logout
-              </button>
-            </div>
-          )}
+            {/* Dropdown Menu */}
+            {isMenuOpen && (
+              <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-xl py-2 w-56 z-50">
+                {user && (
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <p className="text-xs text-gray-500">Logged in as</p>
+                    <p className="font-semibold text-gray-800 truncate">
+                      {user.user_metadata?.first_name} {user.user_metadata?.last_name}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                  </div>
+                )}
+                <button 
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate('/admin');
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 font-medium transition-colors"
+                >
+                  Admin Dashboard
+                </button>
+                <button 
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-100 text-red-600 font-medium transition-colors border-t border-gray-200"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-black">SHEARFLOW</h1>
         </div>
-
-        {/* Logo */}
-        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-serif text-white tracking-wider">SHEARFLOW</h1>
       </div>
 
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 pb-24 lg:pb-8 pt-20 bg-gradient-to-br from-teal-400 to-teal-500">
       {/* Services Grid */}
-      <div className="flex justify-center w-full mb-4 sm:mb-6 md:mb-8">
+      <div className="flex justify-center items-center w-full">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-5xl w-full px-2">
         {/* Stylist Card */}
         <div 
