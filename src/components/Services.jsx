@@ -8,7 +8,11 @@ import { useToast } from '../hooks/useToast';
 const Services = ({ onAddToOrder }) => {
   const navigate = useNavigate();
   const [services, setServices] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const { toasts, showToast, removeToast } = useToast();
 
   const fetchServices = useCallback(async () => {
@@ -29,14 +33,55 @@ const Services = ({ onAddToOrder }) => {
     }
   }, [showToast]);
 
+  const fetchProducts = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchServices();
-  }, [fetchServices]);
+    fetchProducts();
+  }, [fetchServices, fetchProducts]);
 
   const handleServiceClick = (service) => {
-    if (onAddToOrder) {
-      onAddToOrder(service, 'service', navigate);
-      showToast(`Added ${service.title} to order!`, 'success');
+    setSelectedService(service);
+    setSelectedProducts([]);
+    setShowProductModal(true);
+  };
+
+  const toggleProductSelection = (productId) => {
+    setSelectedProducts(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const handleConfirmService = () => {
+    if (onAddToOrder && selectedService) {
+      // Get selected product details
+      const productsUsed = products.filter(p => selectedProducts.includes(p.id));
+      
+      // Add service with products information
+      const serviceWithProducts = {
+        ...selectedService,
+        productsUsed: productsUsed
+      };
+      
+      onAddToOrder(serviceWithProducts, 'service', navigate);
+      showToast(`Added ${selectedService.title} to order!`, 'success');
+      setShowProductModal(false);
+      setSelectedService(null);
+      setSelectedProducts([]);
     }
   };
 
@@ -111,6 +156,75 @@ const Services = ({ onAddToOrder }) => {
           onClose={() => removeToast(toast.id)}
         />
       ))}
+
+      {/* Product Selection Modal */}
+      {showProductModal && selectedService && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                {selectedService.title}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Select products used for this service (optional)
+              </p>
+
+              {products.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No products available</p>
+              ) : (
+                <div className="space-y-2 mb-6 max-h-96 overflow-y-auto">
+                  {products.map((product) => (
+                    <label
+                      key={product.id}
+                      className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                        selectedProducts.includes(product.id)
+                          ? 'border-teal-500 bg-teal-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.includes(product.id)}
+                        onChange={() => toggleProductSelection(product.id)}
+                        className="w-5 h-5 text-teal-500 rounded focus:ring-2 focus:ring-teal-500"
+                      />
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-800">{product.name}</div>
+                        <div className="text-sm text-gray-600">₱{product.price.toFixed(2)}</div>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Stock: {product.stock}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowProductModal(false);
+                    setSelectedService(null);
+                    setSelectedProducts([]);
+                  }}
+                  className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmService}
+                  className="flex-1 px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg transition-colors"
+                >
+                  Add to Order
+                  {selectedProducts.length > 0 && (
+                    <span className="ml-2">({selectedProducts.length} product{selectedProducts.length !== 1 ? 's' : ''})</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

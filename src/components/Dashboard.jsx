@@ -48,7 +48,7 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
   };
 
   const processCheckout = async (checkoutData) => {
-    const { customerName, paymentMethod, discount, notes } = checkoutData;
+    const { customerName, paymentMethod, discount, notes, stylistId } = checkoutData;
     const total = Math.max(0, subtotal - discount);
     
     try {
@@ -69,6 +69,7 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
           payment_method: paymentMethod,
           payment_status: 'completed',
           notes: notes,
+          stylist_id: stylistId,
           user_id: user?.id
         }])
         .select()
@@ -240,18 +241,7 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
 
       {/* Services Grid */}
       <div className="flex justify-center w-full mb-4 sm:mb-6 md:mb-8">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 max-w-3xl w-full">
-        {/* Walk-in Service */}
-        <div 
-          onClick={() => navigate('/walkin')}
-          className="bg-white rounded-lg p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-        >
-          <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-teal-500" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/>
-          </svg>
-          <span className="mt-2 sm:mt-3 text-gray-800 font-semibold text-xs sm:text-sm md:text-base text-center">Walk-in Client</span>
-        </div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-4xl w-full">
         {/* Stylist  */}
         <div 
           onClick={() => navigate('/stylist')}
@@ -307,40 +297,25 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
           ) : (
             orderItems.map((item) => (
               <div key={`${item.type}-${item.id}`} className="border-b border-gray-200 pb-3 mb-3">
-                {/* Walk-in Customer Info Badge */}
-                {item.type === 'walkin' && item.customerInfo && (
-                  <div className="bg-teal-50 border border-teal-200 rounded-lg p-2 mb-2 text-xs">
-                    <div className="flex items-center gap-1 mb-1">
-                      <svg className="w-3 h-3 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
-                      </svg>
-                      <span className="font-semibold text-teal-700">{item.customerInfo.name}</span>
-                    </div>
-                    <div className="text-gray-600 space-y-0.5">
-                      {item.customerInfo.contact && (
-                        <div>📞 {item.customerInfo.contact}</div>
-                      )}
-                      {item.customerInfo.time && (
-                        <div>🕐 {item.customerInfo.time}</div>
-                      )}
-                      {item.customerInfo.stylist && (
-                        <div>✂️ {item.customerInfo.stylist}</div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1">
                     <span className="text-black font-medium text-sm">{item.name}</span>
-                    {item.type === 'walkin' && (
-                      <span className="ml-2 text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded">Walk-in</span>
-                    )}
                     {item.type === 'product' && (
                       <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Product</span>
                     )}
                     {item.type === 'service' && (
                       <span className="ml-2 text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded">Service</span>
+                    )}
+                    {/* Show products used for service */}
+                    {item.type === 'service' && item.productsUsed && item.productsUsed.length > 0 && (
+                      <div className="mt-1 text-xs text-gray-600">
+                        <div className="font-semibold">Products used:</div>
+                        <ul className="ml-2 space-y-0.5">
+                          {item.productsUsed.map((product, idx) => (
+                            <li key={idx}>• {product.name}</li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </div>
                   <button

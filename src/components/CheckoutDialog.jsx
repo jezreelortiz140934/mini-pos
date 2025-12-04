@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PaymentMethodSelector from './PaymentMethodSelector';
 import { validateVoucher, markVoucherAsUsed } from '../data/vouchers';
+import { supabase } from '../supabaseClient';
 
 const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal }) => {
   const [customerName, setCustomerName] = useState('');
@@ -9,6 +10,28 @@ const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal }) => {
   const [appliedVoucher, setAppliedVoucher] = useState(null);
   const [voucherError, setVoucherError] = useState('');
   const [notes, setNotes] = useState('');
+  const [stylists, setStylists] = useState([]);
+  const [selectedStylist, setSelectedStylist] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchStylists();
+    }
+  }, [isOpen]);
+
+  const fetchStylists = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('stylists')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setStylists(data || []);
+    } catch (error) {
+      console.error('Error fetching stylists:', error);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -51,7 +74,8 @@ const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal }) => {
         paymentMethod,
         discount: discountAmount,
         voucherCode: appliedVoucher?.code || null,
-        notes: notes.trim()
+        notes: notes.trim(),
+        stylistId: selectedStylist || null
       });
       // Reset form
       setCustomerName('');
@@ -60,6 +84,7 @@ const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal }) => {
       setAppliedVoucher(null);
       setVoucherError('');
       setNotes('');
+      setSelectedStylist('');
       onClose();
     }
   };
@@ -85,6 +110,25 @@ const CheckoutDialog = ({ isOpen, onClose, onSubmit, subtotal }) => {
                 autoFocus
                 required
               />
+            </div>
+
+            {/* Stylist Selection */}
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Stylist (Optional)
+              </label>
+              <select
+                value={selectedStylist}
+                onChange={(e) => setSelectedStylist(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              >
+                <option value="">Select a stylist</option>
+                {stylists.map((stylist) => (
+                  <option key={stylist.id} value={stylist.id}>
+                    {stylist.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Payment Method */}

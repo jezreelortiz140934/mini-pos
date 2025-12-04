@@ -6,12 +6,9 @@ import LandingPage from './components/LandingPage';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-import WalkInAppointment from './components/WalkInAppointment';
 import Services from './components/Services';
 import Stylist from './components/Stylist';
-
 import Products from './components/Products';
-import Inventory from './components/Inventory';
 import AdminDashboard from './components/AdminDashboard';
 
 function App() {
@@ -49,16 +46,20 @@ function App() {
         )
       );
     } else {
-      setOrderItems([
-        ...orderItems,
-        {
-          id: item.id,
-          name: item.title || item.name,
-          price: item.price,
-          qty: 1,
-          type: type
-        }
-      ]);
+      const newItem = {
+        id: item.id,
+        name: item.title || item.name,
+        price: item.price,
+        qty: 1,
+        type: type
+      };
+      
+      // Add products used for services
+      if (type === 'service' && item.productsUsed) {
+        newItem.productsUsed = item.productsUsed;
+      }
+      
+      setOrderItems([...orderItems, newItem]);
     }
     
     // Navigate back to dashboard with loading state
@@ -151,14 +152,6 @@ function App() {
             } 
           />
           <Route 
-            path="/walkin" 
-            element={
-              <ProtectedRoute>
-                <WalkInAppointment onAddToOrder={addToOrder} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
             path="/services" 
             element={
               <ProtectedRoute>
@@ -180,14 +173,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <Products onAddToOrder={addToOrder} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/inventory" 
-            element={
-              <ProtectedRoute>
-                <Inventory />
               </ProtectedRoute>
             } 
           />

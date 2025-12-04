@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import AdminLogin from './AdminLogin';
-import Inventory from './Inventory';
 import DailySales from './DailySales';
 import Sales from './Sales';
 import ServicesManagement from './ServicesManagement';
@@ -21,7 +20,6 @@ const AdminDashboard = () => {
 
   return (
     <Routes>
-      <Route path="inventory" element={<Inventory />} />
       <Route path="daily-sales" element={<DailySales />} />
       <Route path="sales" element={<Sales />} />
       <Route path="services" element={<ServicesManagement />} />
@@ -67,28 +65,6 @@ const AdminDashboardHome = ({ handleLogout }) => {
 
               {/* Admin Menu Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-                {/* Inventory Section */}
-                <button
-                  onClick={() => navigate('/admin/inventory')}
-                  className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 sm:hover:-translate-y-2 text-left group"
-                >
-                  <div className="bg-purple-100 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-purple-200 transition-colors">
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                    </svg>
-                  </div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">Inventory Section</h2>
-                  <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">
-                    Manage products, track stock levels, add new items, and update quantities
-                  </p>
-                  <div className="flex items-center text-purple-600 font-semibold text-sm sm:text-base">
-                    Open Inventory
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                  </div>
-                </button>
-
                 {/* Daily Sales Report */}
                 <button
                   onClick={() => navigate('/admin/daily-sales')}
