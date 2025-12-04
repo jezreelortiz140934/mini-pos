@@ -97,7 +97,7 @@ const Products = ({ onAddToOrder }) => {
       {/* Products Grid */}
       <div className="max-w-7xl mx-auto">
         {loading || searching ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, index) => (
               <SkeletonCard key={index} />
             ))}
@@ -113,7 +113,7 @@ const Products = ({ onAddToOrder }) => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 fade-in">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 fade-in">
             {filteredProducts.map((product) => (
               <div key={product.id} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
                 {product.image_url && (
