@@ -273,29 +273,7 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
       <div className="flex-1 flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 pb-24 lg:pb-8 pt-20 bg-gradient-to-br from-teal-400 to-teal-500">
       {/* Services Grid */}
       <div className="flex justify-center items-center w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-5xl w-full px-2">
-        {/* Stylist Card */}
-        <div 
-          onClick={() => navigate('/stylist')}
-          className="group bg-white rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 border-2 border-transparent hover:border-teal-400"
-        >
-          <div className="bg-gradient-to-br from-teal-100 to-teal-50 rounded-full p-5 md:p-6 mb-4 group-hover:scale-110 transition-transform duration-300">
-            <svg className="w-10 h-10 md:w-12 md:h-12 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="8" r="4"/>
-              <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
-              <line x1="20" y1="8" x2="20" y2="14"/>
-            </svg>
-          </div>
-          <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2 group-hover:text-teal-600 transition-colors">Stylist</h3>
-          <p className="text-xs md:text-sm text-gray-500 text-center">View and manage stylists</p>
-          <div className="mt-4 flex items-center text-teal-600 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-            <span>Open</span>
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-            </svg>
-          </div>
-        </div>
-
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-5xl w-full px-2">
         {/* Services Card */}
         <div 
           onClick={() => navigate('/services')}
@@ -331,6 +309,28 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
           <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">Products</h3>
           <p className="text-xs md:text-sm text-gray-500 text-center">Shop salon products</p>
           <div className="mt-4 flex items-center text-purple-600 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+            <span>Open</span>
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+
+        {/* Stylist Card - Full Width on Mobile */}
+        <div 
+          onClick={() => navigate('/stylist')}
+          className="col-span-2 sm:col-span-1 group bg-white rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 border-2 border-transparent hover:border-teal-400"
+        >
+          <div className="bg-gradient-to-br from-teal-100 to-teal-50 rounded-full p-5 md:p-6 mb-4 group-hover:scale-110 transition-transform duration-300">
+            <svg className="w-10 h-10 md:w-12 md:h-12 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+              <line x1="20" y1="8" x2="20" y2="14"/>
+            </svg>
+          </div>
+          <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2 group-hover:text-teal-600 transition-colors">Stylist</h3>
+          <p className="text-xs md:text-sm text-gray-500 text-center">View and manage stylists</p>
+          <div className="mt-4 flex items-center text-teal-600 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
             <span>Open</span>
             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
