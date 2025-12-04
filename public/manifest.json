@@ -3,13 +3,13 @@
   "name": "SHEARFLOW POS System",
   "icons": [
     {
-      "src": "sflogo.png",
-      "type": "image/png",
+      "src": "shearflowlogo.jpg",
+      "type": "image/jpeg",
       "sizes": "192x192"
     },
     {
-      "src": "sflogo.png",
-      "type": "image/png",
+      "src": "shearflowlogo.jpg",
+      "type": "image/jpeg",
       "sizes": "512x512"
     }
   ],
