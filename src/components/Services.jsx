@@ -117,7 +117,7 @@ const Services = ({ onAddToOrder }) => {
             {services.map((service) => (
               <div 
                 key={service.id}
-                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all"
+                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all flex flex-col h-full"
               >
                 {service.image_url && (
                   <div className="h-64 bg-gray-200 overflow-hidden">
@@ -129,15 +129,15 @@ const Services = ({ onAddToOrder }) => {
                   </div>
                 )}
                 
-                <div className="p-6 text-center">
+                <div className="p-6 text-center flex flex-col flex-grow">
                   <h3 className="text-teal-600 text-xl font-bold mb-2">{service.title}</h3>
                   {service.description && (
                     <p className="text-gray-600 text-sm mb-3">{service.description}</p>
                   )}
-                  <p className="text-pink-500 font-bold text-2xl">₱{service.price.toLocaleString()}</p>
+                  <p className="text-pink-500 font-bold text-2xl mb-4">{service.price.toLocaleString()}</p>
                   <button 
                     onClick={() => handleServiceClick(service)}
-                    className="mt-4 w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition-colors"
+                    className="mt-auto w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition-colors"
                   >
                     Add to Order
                   </button>

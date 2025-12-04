@@ -273,7 +273,7 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
       <div className="flex-1 flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 pb-24 lg:pb-8 pt-20 bg-gradient-to-br from-teal-400 to-teal-500">
       {/* Services Grid */}
       <div className="flex justify-center items-center w-full">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-5xl w-full px-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-5xl w-full px-2">
         {/* Services Card */}
         <div 
           onClick={() => navigate('/services')}
@@ -316,10 +316,10 @@ const Dashboard = ({ orderItems = [], onRemoveFromOrder, onUpdateQuantity, onCle
           </div>
         </div>
 
-        {/* Stylist Card - Full Width on Mobile */}
+        {/* Stylist Card */}
         <div 
           onClick={() => navigate('/stylist')}
-          className="col-span-2 sm:col-span-1 group bg-white rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 border-2 border-transparent hover:border-teal-400"
+          className="group bg-white rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 border-2 border-transparent hover:border-teal-400"
         >
           <div className="bg-gradient-to-br from-teal-100 to-teal-50 rounded-full p-5 md:p-6 mb-4 group-hover:scale-110 transition-transform duration-300">
             <svg className="w-10 h-10 md:w-12 md:h-12 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
