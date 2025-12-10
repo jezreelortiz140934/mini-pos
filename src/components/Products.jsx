@@ -147,7 +147,7 @@ const Products = ({ onAddToOrder }) => {
                   {onAddToOrder && product.stock > 0 && (
                     <button
                       onClick={() => {
-                        onAddToOrder(product, 'product', navigate);
+                        onAddToOrder(product, 'product');
                         showToast(`Added ${product.name} to order!`, 'success');
                       }}
                       className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition-colors mt-4"

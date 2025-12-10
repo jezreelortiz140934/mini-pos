@@ -32,7 +32,7 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const addToOrder = (item, type, navigate) => {
+  const addToOrder = (item, type) => {
     const existingItem = orderItems.find(
       orderItem => orderItem.id === item.id && orderItem.type === type
     );
@@ -60,11 +60,6 @@ function App() {
       }
       
       setOrderItems([...orderItems, newItem]);
-    }
-    
-    // Navigate back to dashboard with loading state
-    if (navigate) {
-      navigate('/', { state: { showLoading: true } });
     }
   };
 

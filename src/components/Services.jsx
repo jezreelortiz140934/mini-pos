@@ -77,7 +77,7 @@ const Services = ({ onAddToOrder }) => {
         productsUsed: productsUsed
       };
       
-      onAddToOrder(serviceWithProducts, 'service', navigate);
+      onAddToOrder(serviceWithProducts, 'service');
       showToast(`Added ${selectedService.title} to order!`, 'success');
       setShowProductModal(false);
       setSelectedService(null);
